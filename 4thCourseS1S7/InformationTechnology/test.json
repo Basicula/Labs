@@ -1,0 +1,44 @@
+{
+    "name": "Simple data base",
+    "tables": [
+        {
+            "name": "Users",
+            "columns": [
+                {
+                    "header": "Age",
+                    "type": "integer"
+                },
+                {
+                    "header": "Name",
+                    "type": "string"
+                }
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        {
+                            "data": 21,
+                            "type": "integer"
+                        },
+                        {
+                            "data": "Kek Kekovich",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "cells": [
+                        {
+                            "data": 23,
+                            "type": "integer"
+                        },
+                        {
+                            "data": "Jim",
+                            "type": "string"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
