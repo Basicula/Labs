@@ -43,11 +43,16 @@ class Application(QWidget):
 		self.setPalette(self.current_palette)
 	
 	#Actions
+	def updateDBView(self):
+		self.table_layout.itemAt(0).widget().deleteLater()
+		self.table_layout.addWidget(self.dbController.tabWidget)
+		
 	def newDB(self):
 		self.dbController = DataBaseController()
 		self.createWindow = CreateDBWindow(self.dbController)
 		self.createWindow.setPalette(self.palette())
 		self.createWindow.show()
+		self.createWindow.createButton.clicked.connect(self.updateDBView)
 		
 	def initNewDBAction(self):
 		self.new_db_action = QAction("New")
