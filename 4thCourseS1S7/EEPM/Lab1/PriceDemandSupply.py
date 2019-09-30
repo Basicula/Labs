@@ -104,19 +104,28 @@ class Polynom:
 				self.a[j] = (self.a[j] - self.a[j-1])/(self.x[j] - self.x[j-i])
 				
 	def printApproximation(self):
-		precision = int(len(self.a)/2)
-		res = doubleToStr(self.a[0],precision)
-		for i in range(1,len(self.a)):
-			if self.a[i] == 0:
-				continue
-			elif self.a[i] < 0:
-				res += " - "
-			else:
-				res += " + "
-			res += doubleToStr(abs(self.a[i]),precision)+"*x"
-			if i > 1:
-				res += "^"+str(i)
-		print(res)
+		if self.mode == 0:
+			precision = int(len(self.a)/2)
+			res = doubleToStr(self.a[0],precision)
+			for i in range(1,len(self.a)):
+				if self.a[i] == 0:
+					continue
+				elif self.a[i] < 0:
+					res += " - "
+				else:
+					res += " + "
+				res += doubleToStr(abs(self.a[i]),precision)+"*x"
+				if i > 1:
+					res += "^"+str(i)
+			print(res)
+		elif self.mode == 1:
+			precision = 3
+			res = doubleToStr(self.a[0],precision) + " + " + doubleToStr(self.a[1]) + "*ln(x)"
+			print(res)
+		elif self.mode == 2:
+			precision = 3
+			res = doubleToStr(self.a[0],precision) + " * x^" + doubleToStr(self.a[1])
+			print(res)
 
 	def polynomicalApproximation(self,power):
 		self.mode = 0
@@ -138,8 +147,56 @@ class Polynom:
 			ys.append(y)	
 		self.a = solveMatrixEquation(matrix,ys)
 		
+	def logarithmicApproximation(self):
+		self.mode = 1
+		matrix = []
+		ys = []
+		for i in range(2):
+			row = []
+			for j in range(2):
+				t = 0
+				for x in self.xs:
+					t += np.log(x)**(i+j)
+				row.append(t)
+			matrix.append(row)
+				
+			y = 0
+			for j in range(self.n):
+				y += self.ys[j] * np.log(self.xs[j])**i
+			ys.append(y)
+		self.a = solveMatrixEquation(matrix,ys)
+
+	def stepwiseApproximation(self):
+		self.mode = 2
+		matrix = []
+		ys = []
+		for i in range(2):
+			row = []
+			for j in range(2):
+				t = 0
+				for x in self.xs:
+					t += np.log(x)**(i+j)
+				row.append(t)
+			matrix.append(row)
+				
+			y = 0
+			for j in range(self.n):
+				y += np.log(self.ys[j]) * np.log(self.xs[j])**i
+			ys.append(y)
+		self.a = solveMatrixEquation(matrix,ys)
+		self.a[0] = np.e**self.a[0]
+		
 	def __call__(self,x):
-		if self.mode == 1:
+		if self.mode == 0:
+			res = 0
+			for i in range(len(self.a)):
+				res += self.a[i] * x**i
+			return res
+		elif self.mode == 1:
+			return self.a[0] + self.a[1] * np.log(x)
+		elif self.mode == 2:
+			return self.a[0]*x**self.a[1]
+		else:
 			res = self.a[0]
 			for i in range(1,len(self.a)):
 				t = 1
@@ -147,11 +204,7 @@ class Polynom:
 					t*=x-self.x[j]
 				res += t * self.a[i]
 			return res
-		else:
-			res = 0
-			for i in range(len(self.a)):
-				res += self.a[i] * x**i
-			return res
+			
 			
 class Market:
 	def __init__(self,prices,demands,supplies,grant):
@@ -208,21 +261,23 @@ class Market:
 		self.supplyCurve.polynomicalApproximation(self.approximationPower)
 		aproximatedData.scatter(self.supplyCurve(self.xrange),self.xrange,c=grad(self.supplyColor,len(self.xrange),True),s=5)
 		
+		self.supplyCurve2 = Polynom(self.prices,self.supplies)
+		self.supplyCurve2.logarithmicApproximation()
+		aproximatedData.scatter(self.supplyCurve2(self.xrange),self.xrange,c=grad("#ff0000",len(self.xrange),True),s=5)
+		
+		self.supplyCurve3 = Polynom(self.prices,self.supplies)
+		self.supplyCurve3.stepwiseApproximation()
+		aproximatedData.scatter(self.supplyCurve3(self.xrange),self.xrange,c=grad("#00ff00",len(self.xrange),True),s=5)
+		
 		self.grantCurve = Polynom(np.array(self.prices)-self.grant,self.supplies)
 		self.grantCurve.polynomicalApproximation(self.approximationPower)
 		aproximatedData.scatter(self.grantCurve(self.xrange),self.xrange,c=grad(self.supplyColor,len(self.xrange),True),s=5)
 		
-		self.grantCurve2 = Polynom(self.prices,np.array(self.supplies)+2*self.grant)
-		self.grantCurve2.polynomicalApproximation(self.approximationPower)
-		aproximatedData.scatter(self.grantCurve2(self.xrange),self.xrange,c=grad(self.supplyColor,len(self.xrange),True),s=5)
-		
 		if self.isShowIntersection:
 			self.balance = self.demandCurve.intersection(self.supplyCurve,[min(self.prices),max(self.prices)])
 			self.grantBalance = self.demandCurve.intersection(self.grantCurve,[min(self.prices),max(self.prices)])
-			self.grantBalance2 = self.demandCurve.intersection(self.grantCurve2,[min(self.prices),max(self.prices)])
 			aproximatedData.scatter(self.demandCurve(self.balance),self.balance,c='r')	
 			aproximatedData.scatter(self.demandCurve(self.grantBalance),self.grantBalance,c='r')	
-			aproximatedData.scatter(self.demandCurve(self.grantBalance2),self.grantBalance2,c='r')	
 		
 	def addPolynomicalApproximation(self,fig,gs,row,column,power):
 		p = self.prices
@@ -264,6 +319,8 @@ class Market:
 		
 		self.demandCurve.printApproximation()
 		self.supplyCurve.printApproximation()
+		self.supplyCurve2.printApproximation()
+		self.supplyCurve3.printApproximation()
 		
 		t = self.balance
 		print("Balance point with price = ",t)
@@ -273,10 +330,6 @@ class Market:
 		print("Balance point with grant = ",t)
 		print("Ed = ",abs(self.demandCurve.derivative()(t)*t/self.demandCurve(t)))
 		print("Es = ",abs(self.grantCurve.derivative()(t)*t/self.grantCurve(t)))
-		t = self.grantBalance2
-		print("Balance point with grant = ",t)
-		print("Ed = ",abs(self.demandCurve.derivative()(t)*t/self.demandCurve(t)))
-		print("Es = ",abs(self.grantCurve2.derivative()(t)*t/self.grantCurve2(t)))
 		
 		separ = "\t"
 		prices = "Prices\t"
