@@ -1,0 +1,59 @@
+{
+    "name": "",
+    "tables": [
+        {
+            "name": "Mail users",
+            "columns": [
+                {
+                    "header": "Name",
+                    "type": "string"
+                },
+                {
+                    "header": "Age",
+                    "type": "integer"
+                },
+                {
+                    "header": "Mail",
+                    "type": "string"
+                }
+            ],
+            "rows": []
+        },
+        {
+            "name": "Phone users",
+            "columns": [
+                {
+                    "header": "Name",
+                    "type": "string"
+                },
+                {
+                    "header": "Age",
+                    "type": "integer"
+                },
+                {
+                    "header": "Phone number",
+                    "type": "string"
+                }
+            ],
+            "rows": []
+        },
+        {
+            "name": "Float data",
+            "columns": [
+                {
+                    "header": "Name",
+                    "type": "string"
+                },
+                {
+                    "header": "Height",
+                    "type": "real"
+                },
+                {
+                    "header": "Weight",
+                    "type": "real"
+                }
+            ],
+            "rows": []
+        }
+    ]
+}

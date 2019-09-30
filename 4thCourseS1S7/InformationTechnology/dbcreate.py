@@ -45,8 +45,7 @@ class CreateDBWindow(QWidget):
 		self.close()
 		
 	def addTable(self):
-		self.tableController = TableController()
-		self.addTableWindow = TableCreatWindow(self.tableController)
+		self.addTableWindow = TableCreatWindow()
 		self.addTableWindow.setPalette(self.palette())
-		self.addTableWindow.createButton.clicked.connect(lambda _: self.dbController.addTableController(self.tableController))
+		self.addTableWindow.createButton.clicked.connect(lambda _: self.dbController.addTable(self.addTableWindow.tableController.table))
 		self.addTableWindow.show()

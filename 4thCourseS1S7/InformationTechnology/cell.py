@@ -25,6 +25,18 @@ class Cell:
 	def __init__(self,data="",type=DataType.String):
 		self.data = data
 		self.type = type
+		self.required = True
+		
+	@property
+	def __dict__(self):
+		return {
+				'data' : self.data,
+				'type' : self.type
+				}
+		
+	@staticmethod
+	def fromDict(dict):
+		return Cell(dict['data'], DataType.fromDict(dict['type']))
 	
 	@staticmethod
 	def isValidData(data,type):

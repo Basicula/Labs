@@ -5,14 +5,14 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 class TableCreatWindow(QWidget):
-	def __init__(self,tableController):
+	def __init__(self):
 		super().__init__()
 		
 		self.setWindowTitle("Create table")
 		
 		self.setGeometry(200, 200, 400, 400)
 		
-		self.tableController = tableController
+		self.tableController = TableController()
 		
 		self.initUI()
 		
@@ -35,7 +35,28 @@ class TableCreatWindow(QWidget):
 		
 	def addColumn(self):
 		self.tableController.addColumn(self.columnHeaderEditor.text(),self.columnTypeEditor.currentIndex())
+		if self.columnTypeEditor.currentIndex() == 5:
+			bottom = float("-inf")
+			top = float("inf")
+			if float(self.intervalBottomEditor.text()):
+				bottom = float(self.intervalBottomEditor.text())
+			if float(self.intervalTopEditor.text()):
+				top = float(self.intervalTopEditor.text())
+			if bottom < top:
+				self.tableController.table.columns[-1].optionalInfo = ['interval',[bottom, top]]
+		self.intervalBottomEditor.clear()
+		self.intervalTopEditor.clear()
 		self.columnHeaderEditor.clear()
+		
+	def updateIntervalInfo(self,type):
+		visible = False
+		if type == "RealInvl" or type == 5:
+			visible = True
+		self.intervalInfoLabel.setVisible(visible)
+		self.intervalBottomLabel.setVisible(visible)
+		self.intervalBottomEditor.setVisible(visible)
+		self.intervalTopLabel.setVisible(visible)
+		self.intervalTopEditor.setVisible(visible)
 		
 	def columnInfo(self):
 		self.columnEditorLayout = QVBoxLayout()
@@ -53,9 +74,39 @@ class TableCreatWindow(QWidget):
 		self.columnTypeInfoLayout.addWidget(self.columnTypeLabel)
 		self.columnTypeEditor = QComboBox()
 		self.columnTypeEditor.addItems(DataType.asList())
+		self.columnTypeEditor.currentIndexChanged.connect(self.updateIntervalInfo)
 		self.columnTypeInfoLayout.addWidget(self.columnTypeEditor)
 		
 		self.columnEditorLayout.addLayout(self.columnTypeInfoLayout)
+		
+		self.intervalInfoLayout = QVBoxLayout()
+		self.intervalInfoLabel = QLabel("Real interval")
+		self.intervalInfoLabel.setAlignment(Qt.AlignCenter)
+		self.intervalInfoLabel.setVisible(False)
+		self.intervalInfoLayout.addWidget(self.intervalInfoLabel)
+		
+		self.intervalBottomLayout = QHBoxLayout()
+		self.intervalBottomLabel = QLabel("Bottom:")
+		self.intervalBottomLabel.setVisible(False)
+		self.intervalBottomLayout.addWidget(self.intervalBottomLabel)
+		self.intervalBottomEditor = QLineEdit()
+		self.intervalBottomEditor.setValidator(QDoubleValidator())
+		self.intervalBottomEditor.setVisible(False)
+		self.intervalBottomLayout.addWidget(self.intervalBottomEditor)
+		self.intervalInfoLayout.addLayout(self.intervalBottomLayout)
+		
+		self.intervalTopLayout = QHBoxLayout()
+		self.intervalTopLabel = QLabel("Top:")
+		self.intervalTopLabel.setVisible(False)
+		self.intervalTopLayout.addWidget(self.intervalTopLabel)
+		self.intervalTopEditor = QLineEdit()
+		self.intervalTopEditor.setValidator(QDoubleValidator())
+		self.intervalTopEditor.setVisible(False)
+		self.intervalTopLayout.addWidget(self.intervalTopEditor)
+		self.intervalInfoLayout.addLayout(self.intervalTopLayout)
+		
+		self.columnEditorLayout.addLayout(self.intervalInfoLayout)
+		
 		
 	def tableColumns(self):
 		self.columnInfo()

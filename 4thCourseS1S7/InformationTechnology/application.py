@@ -1,5 +1,6 @@
 from databasecontroller import *
 from dbcreate import *
+from tablecreate import *
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -56,25 +57,55 @@ class Application(QWidget):
 		
 	def initNewDBAction(self):
 		self.new_db_action = QAction("New")
+		self.new_db_action.setShortcut("Ctrl+N")
 		self.new_db_action.triggered.connect(self.newDB)
 	
 	def save(self):
-		pass
+		file = QFileDialog.getSaveFileName(self, 'Save data base',filter = '*.json')
+		if file[0]:
+			self.dbController.saveDB(file[0])
+		self.dbController = DataBaseController()
+		self.updateDBView()
 		
 	def initSaveAction(self):
 		self.save_action = QAction("Save")
+		self.save_action.setShortcut("Ctrl+S")
 		self.save_action.triggered.connect(self.save)
 		
 	def open(self):
-		pass
+		self.dbController = DataBaseController()
+		file = QFileDialog.getOpenFileName(self, 'Load data base', filter = '*.json')
+		if file[0]:
+			self.dbController.loadDB(file[0])
+		self.updateDBView()
 	
 	def initOpenAction(self):
 		self.open_action = QAction("Open")	
+		self.open_action.setShortcut("Ctrl+O")
 		self.open_action.triggered.connect(self.open)
+		
+	def delete(self):
+		self.dbController = DataBaseController()
+		self.updateDBView()
+		
+	def initDeleteAction(self):
+		self.delete_action = QAction("Delete")
+		self.delete_action.setShortcut("Ctrl+D")
+		self.delete_action.triggered.connect(self.delete)
 	
 	def initExitAction(self):
 		self.exit_action = QAction("Exit")
 		self.exit_action.triggered.connect(qApp.quit)
+		
+	def addTable(self):
+		self.addTableWindow = TableCreatWindow()
+		self.addTableWindow.setPalette(self.palette())
+		self.addTableWindow.createButton.clicked.connect(lambda _: self.dbController.addTable(self.addTableWindow.tableController.table))
+		self.addTableWindow.show()
+		
+	def initAddTableAction(self):
+		self.add_table_action = QAction("Add table")
+		self.add_table_action.triggered.connect(self.addTable)
 		
 	def changeTheme(self):
 		if self.current_palette == self.default_palette:
@@ -91,8 +122,16 @@ class Application(QWidget):
 		self.initNewDBAction()
 		self.initSaveAction()
 		self.initOpenAction()
+		self.initDeleteAction()
 		self.initExitAction()
+		
+		self.initAddTableAction()
+		
 		self.initChangeThemeAction()
+		
+	#Controllers
+	def initControllers(self):
+		self.dbController = DataBaseController()
 		
 	#UI
 	def initUI(self):
@@ -114,10 +153,6 @@ class Application(QWidget):
 		
 		self.setLayout(self.main_layout)
 	
-	#Controllers
-	def initControllers(self):
-		self.dbController = DataBaseController()
-	
 	#Menu
 	def initMenuBar(self):
 		self.menubar = QMenuBar()
@@ -127,10 +162,14 @@ class Application(QWidget):
 		actionFile.addAction(self.new_db_action)
 		actionFile.addAction(self.open_action)
 		actionFile.addAction(self.save_action)
+		actionFile.addAction(self.delete_action)
 		actionFile.addSeparator()
 		actionFile.addAction(self.exit_action)
 		
-		actionChangeTheme = self.menubar.addAction(self.change_theme_action)
+		actionEdit = self.menubar.addMenu("Edit")
+		actionEdit.addAction(self.add_table_action)
+		
+		self.menubar.addAction(self.change_theme_action)
 	
 if __name__ == '__main__':
 	_ = QApplication([])
