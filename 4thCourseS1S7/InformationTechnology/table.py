@@ -27,12 +27,15 @@ class Table:
 	def addColumn(self,header,type):
 		self.columns.append(Column(header,type))
 		
-	def addRow(self,data):
+	def addRowData(self,data):
 		cells = []
 		for i in range(len(data)):
 			if Cell.isValidData(data[i],self.columns[i].type):
 				cells.append(Cell(data[i],self.columns[i].type))
 		self.rows.append(Row(cells))
+		
+	def addRow(self,row):
+		self.rows.append(Row(row))
 		
 	def getHeaders(self):
 		headers = []

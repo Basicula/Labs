@@ -1,6 +1,7 @@
 from databasecontroller import *
 from dbcreate import *
 from tablecreate import *
+from mergetableswindow import *
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -15,7 +16,7 @@ class Application(QWidget):
 		self.width = 800
 		self.height = 600
 		
-		self.initControllers()
+		self.initControllers(DataBaseController())
 		self.initActions()
 		self.initPalettes()
 		self.initUI()
@@ -46,13 +47,15 @@ class Application(QWidget):
 	#Actions
 	def updateDBView(self):
 		self.table_layout.itemAt(0).widget().deleteLater()
+		self.dbController.update()
 		self.table_layout.addWidget(self.dbController.tabWidget)
 		
 	def newDB(self):
 		self.dbController = DataBaseController()
-		self.createWindow = CreateDBWindow(self.dbController)
+		self.createWindow = CreateDBWindow()
 		self.createWindow.setPalette(self.palette())
 		self.createWindow.show()
+		self.createWindow.createButton.clicked.connect(lambda _:self.initControllers(self.createWindow.dbController))
 		self.createWindow.createButton.clicked.connect(self.updateDBView)
 		
 	def initNewDBAction(self):
@@ -105,7 +108,24 @@ class Application(QWidget):
 		
 	def initAddTableAction(self):
 		self.add_table_action = QAction("Add table")
+		self.add_table_action.setShortcut("Ctrl+A")
 		self.add_table_action.triggered.connect(self.addTable)
+		
+	def mergeTables(self):
+		self.mergeTablesWindow = MergeTablesWindow(self.dbController.getTableNamesList())
+		def getTablesForMerge():
+			tables_for_merge = []
+			for checkBox in self.mergeTablesWindow.checkBoxList:
+				if checkBox.checkState():
+					tables_for_merge.append(checkBox.text())
+			self.dbController.mergeTables(tables_for_merge)
+		self.mergeTablesWindow.show()
+		self.mergeTablesWindow.mergeButton.clicked.connect(getTablesForMerge)
+		
+	def initMergeTablesAction(self):
+		self.merge_tables_action = QAction("Merge tables")
+		self.merge_tables_action.setShortcut("Ctrl+M")
+		self.merge_tables_action.triggered.connect(self.mergeTables)
 		
 	def changeTheme(self):
 		if self.current_palette == self.default_palette:
@@ -126,12 +146,13 @@ class Application(QWidget):
 		self.initExitAction()
 		
 		self.initAddTableAction()
+		self.initMergeTablesAction()
 		
 		self.initChangeThemeAction()
 		
 	#Controllers
-	def initControllers(self):
-		self.dbController = DataBaseController()
+	def initControllers(self,dbController):
+		self.dbController = dbController
 		
 	#UI
 	def initUI(self):
@@ -168,6 +189,7 @@ class Application(QWidget):
 		
 		actionEdit = self.menubar.addMenu("Edit")
 		actionEdit.addAction(self.add_table_action)
+		actionEdit.addAction(self.merge_tables_action)
 		
 		self.menubar.addAction(self.change_theme_action)
 	

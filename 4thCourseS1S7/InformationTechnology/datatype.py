@@ -47,9 +47,9 @@ class DataType(Enum):
 			return DataType.Char
 		elif dict == "string":
 			return DataType.String
-		elif self == "picture":
+		elif dict == "picture":
 			return DataType.Picture
-		elif self == "realinvl":
+		elif dict == "realinvl":
 			return DataType.RealInvl
 			
 	@staticmethod

@@ -12,5 +12,7 @@ class Row:
 		
 	@staticmethod
 	def fromDict(dict):
+		cells = []
 		for cell in dict['cells']:
-			self.cells.append(Cell.fromDict(cell))
+			cells.append(Cell.fromDict(cell))
+		return Row(cells)

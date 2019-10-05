@@ -1,210 +1,9 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
-def doubleToStr(a,prec=3):
-	regex = "{0:."+str(prec)+"f}"
-	return regex.format(round(a,prec))
-	
-def toHex(a):
-	return '#{0:02x}{1:02x}{2:02x}'.format(int(a[0]),int(a[1]),int(a[2]))
+import sys
+sys.path.append('..')
 
-def grad(color,n,inv=False):
-	if isinstance(color,str):
-		color = color[1:]
-		color = [int(color[i:i+2],16) for i in range(0,len(color),2)]
-	colors = []
-	for i in range(n):
-		c = ""
-		if i < n/2:
-			t = 2*i/n
-			c = toHex([color[0]*t,color[1]*t,color[2]*t])
-		else:
-			t = (i - n/2) / (n - n/2)
-			c = toHex([color[0] + (255 - color[0])*t,color[1] + (255 - color[1])*t,color[2] + (255 - color[2])*t])
-		colors.append(c)
-	if inv:
-		return list(reversed(colors))
-	return colors
-
-def solveMatrixEquation(matrix,b):
-	n = len(b)
-	for i in range(n):
-		t = matrix[i][i]
-		for j in range(n):
-			matrix[i][j] /= t
-		b[i] /= t
-	
-		for j in range(n):
-			if j == i:
-				continue
-			t = matrix[j][i]
-			for k in range(i,n):
-				matrix[j][k] -= matrix[i][k] * t
-			b[j] -= b[i] * t
-	return b
-
-class Polynom:
-	def __init__(self,xs,ys):
-		self.additions = []
-		self.eps = 0.01
-		self.xs = xs
-		self.ys = ys
-		self.n = len(xs)
-		self.mode = 0
-		self.a = []
-		
-	def __sub__(self,other):
-		res = Polynom([],[])
-		if len(self.a) == len(other.a):
-			for i in range(len(self.a)):
-				res.a.append(self.a[i] - other.a[i])
-		return res
-		
-	def derivative(self):
-		res = Polynom([],[])
-		for i in range(1,len(self.a)):
-			res.a.append(i*self.a[i])
-		return res
-		
-	def intersection(self,other,interval):
-		sub = self - other
-		if sub(interval[0]) * sub(interval[1]) <= 0:
-			l = interval[0]
-			r = interval[1]
-			prev = sub(l)
-			while l < r:
-				m = (l+r)/2
-				curr = sub(m)
-				if abs(curr-prev) < 1e-4:
-					return m
-				elif sub(l)*sub(m) < 0:
-					r = m
-				elif sub(m)*sub(r) < 0:
-					l = m
-				else:
-					return None
-				prev = curr
-		else:
-			m = (interval[0]+interval[1])/2
-			l = self.intersection(other,[interval[0],m])
-			r = self.intersection(other,[m,interval[1]])
-			if l != None:
-				return l
-			elif r != None:
-				return r
-		return None
-		
-	def NewtonPolynomial(self):
-		self.a = []
-		for y in ys:
-			self.a.append(y)
-		
-		for i in range(1,n):
-			for j in range(n-1,i-1,-1):
-				self.a[j] = (self.a[j] - self.a[j-1])/(self.x[j] - self.x[j-i])
-				
-	def printApproximation(self):
-		if self.mode == 0:
-			precision = int(len(self.a)/2)
-			res = doubleToStr(self.a[0],precision)
-			for i in range(1,len(self.a)):
-				if self.a[i] == 0:
-					continue
-				elif self.a[i] < 0:
-					res += " - "
-				else:
-					res += " + "
-				res += doubleToStr(abs(self.a[i]),precision)+"*x"
-				if i > 1:
-					res += "^"+str(i)
-			print(res)
-		elif self.mode == 1:
-			precision = 3
-			res = doubleToStr(self.a[0],precision) + " + " + doubleToStr(self.a[1]) + "*ln(x)"
-			print(res)
-		elif self.mode == 2:
-			precision = 3
-			res = doubleToStr(self.a[0],precision) + " * x^" + doubleToStr(self.a[1])
-			print(res)
-
-	def polynomicalApproximation(self,power):
-		self.mode = 0
-		power+=1
-		matrix = []
-		ys = []
-		for i in range(power):
-			row = []
-			for j in range(power):
-				t = 0
-				for x in self.xs:
-					t+=x**(i+j)
-				row.append(t)
-			matrix.append(row)
-			
-			y = 0
-			for j in range(self.n):
-				y += self.ys[j] * self.xs[j]**i
-			ys.append(y)	
-		self.a = solveMatrixEquation(matrix,ys)
-		
-	def logarithmicApproximation(self):
-		self.mode = 1
-		matrix = []
-		ys = []
-		for i in range(2):
-			row = []
-			for j in range(2):
-				t = 0
-				for x in self.xs:
-					t += np.log(x)**(i+j)
-				row.append(t)
-			matrix.append(row)
-				
-			y = 0
-			for j in range(self.n):
-				y += self.ys[j] * np.log(self.xs[j])**i
-			ys.append(y)
-		self.a = solveMatrixEquation(matrix,ys)
-
-	def stepwiseApproximation(self):
-		self.mode = 2
-		matrix = []
-		ys = []
-		for i in range(2):
-			row = []
-			for j in range(2):
-				t = 0
-				for x in self.xs:
-					t += np.log(x)**(i+j)
-				row.append(t)
-			matrix.append(row)
-				
-			y = 0
-			for j in range(self.n):
-				y += np.log(self.ys[j]) * np.log(self.xs[j])**i
-			ys.append(y)
-		self.a = solveMatrixEquation(matrix,ys)
-		self.a[0] = np.e**self.a[0]
-		
-	def __call__(self,x):
-		if self.mode == 0:
-			res = 0
-			for i in range(len(self.a)):
-				res += self.a[i] * x**i
-			return res
-		elif self.mode == 1:
-			return self.a[0] + self.a[1] * np.log(x)
-		elif self.mode == 2:
-			return self.a[0]*x**self.a[1]
-		else:
-			res = self.a[0]
-			for i in range(1,len(self.a)):
-				t = 1
-				for j in range(i):
-					t*=x-self.x[j]
-				res += t * self.a[i]
-			return res
-			
+from Math import *			
 			
 class Market:
 	def __init__(self,prices,demands,supplies,grant):
@@ -225,8 +24,11 @@ class Market:
 		self.xrange = np.arange(min(self.prices)-self.step,max(self.prices)+self.step,self.step)
 
 	@staticmethod
-	def createDefaultSubPlot(fig,gs,row,column,title=""):
-		res = fig.add_subplot(gs[row,column])
+	def createDefaultSubPlot(title=""):
+		fig = plt.figure(constrained_layout=True)
+		gs = fig.add_gridspec(1,1)
+		
+		res = fig.add_subplot(gs[0,0])
 		
 		res.set_title(title)
 		res.set_xlabel("Quantity")
@@ -234,11 +36,8 @@ class Market:
 		
 		return res
 		
-	def marketPlot(self):
-		fig = plt.figure(constrained_layout=True)
-		gs = fig.add_gridspec(2,1)
-		
-		inputData = Market.createDefaultSubPlot(fig,gs,0,0,"Input data")
+	def plotInputData(self):		
+		inputData = Market.createDefaultSubPlot("Input data")
 		
 		inputData.scatter(self.demands,self.prices,s=10,c=self.demandColor)
 		inputData.plot(self.demands,self.prices,label="demand data",c=self.demandColor)
@@ -248,10 +47,98 @@ class Market:
 		
 		inputData.legend()
 		
-		self.addMainApproximation(fig,gs,1,0)
+	def preprocessAproximation(self,demand_type,supply_type):
+		title = ""
+		if demand_type == 0:
+			title += "Polynomical" + str(self.approximationPower)
+		elif demand_type == 1:
+			title += "Logarithmic"
+		elif demand_type == 2:
+			title += "Stepwise"
+		title += " and "
+		if supply_type == 0:
+			title += "Polynomical" + str(self.approximationPower)
+		elif supply_type == 1:
+			title += "Logarithmic"
+		elif supply_type == 2:
+			title += "Stepwise"
+			
+		self.demandCurve = Polynom(self.prices,self.demands)
+		if demand_type == 0:
+			self.demandCurve.polynomicalApproximation(self.approximationPower)
+		elif demand_type == 1:
+			self.demandCurve.logarithmicApproximation()
+		elif demand_type == 2:
+			self.demandCurve.stepwiseApproximation()
+			
+		self.supplyCurve = Polynom(self.prices,self.supplies)
+		if supply_type == 0:
+			self.supplyCurve.polynomicalApproximation(self.approximationPower)
+		elif supply_type == 1:
+			self.supplyCurve.logarithmicApproximation()
+		elif supply_type == 2:
+			self.supplyCurve.stepwiseApproximation()
+			
+		return title
 		
-	def addMainApproximation(self,fig,gs,row,column):
-		aproximatedData = Market.createDefaultSubPlot(fig,gs,row,column)
+	#type: 0 - polynomicalApproximation, 1 - logarithmicApproximation, 2 - stepwiseApproximation
+	def plotApproximation(self,demand_type=0,supply_type=0,i_aproximatedData = None):	
+		mid_val = self.xrange[self.xrange.shape[0]//2]
+		
+		title = self.preprocessAproximation(demand_type,supply_type)
+	
+		aproximatedData = i_aproximatedData
+		if aproximatedData == None:
+			aproximatedData = Market.createDefaultSubPlot(title)
+		
+		aproximatedData.scatter(self.demandCurve(self.xrange),
+								self.xrange,
+								c=grad(self.demandColor,len(self.xrange)),
+								s=5)
+		aproximatedData.scatter(self.demandCurve(mid_val),
+								mid_val,
+								c=self.demandColor,
+								s=5,
+								label=self.demandCurve.strApproximation())
+		aproximatedData.scatter(self.supplyCurve(self.xrange),
+								self.xrange,
+								c=grad(self.supplyColor,len(self.xrange),True),
+								s=5)
+		aproximatedData.scatter(self.supplyCurve(mid_val),
+								mid_val,
+								c=self.supplyColor,
+								s=5,
+								label=self.supplyCurve.strApproximation())
+		
+		if self.isShowKeyPoints:
+			aproximatedData.scatter(self.demands,self.prices,s=10,c=self.demandColor)
+			aproximatedData.scatter(self.supplies,self.prices,s=10,c=self.supplyColor)
+			
+		if self.isShowIntersection:
+			self.balance = self.demandCurve.intersection(self.supplyCurve,[min(self.prices),max(self.prices)])
+			balance_quantity = self.demandCurve(self.balance)
+			lbl = "(" + doubleToStr(self.balance,4) + ", " + doubleToStr(balance_quantity,4) + ")"
+			aproximatedData.scatter(balance_quantity,self.balance,c='r',label=lbl)
+
+		aproximatedData.legend()
+		
+	def plotApproximationsCompare(self):
+		fig = plt.figure(constrained_layout=True)
+		gs = fig.add_gridspec(3,3)
+		
+		for d_t in range(3):
+			for s_t in range(3):
+				title = self.preprocessAproximation(d_t,s_t)
+				
+				ax = fig.add_subplot(gs[d_t,s_t])
+				ax.set_title(title)
+				ax.set_xlabel("Quantity")
+				ax.set_ylabel("Price")
+				
+				self.plotApproximation(d_t,s_t,ax)
+		
+	def plotWithGrant(self):
+		aproximatedData = Market.createDefaultSubPlot("With grant")
 		
 		self.demandCurve = Polynom(self.prices,self.demands)
 		self.demandCurve.polynomicalApproximation(self.approximationPower)
@@ -261,14 +148,6 @@ class Market:
 		self.supplyCurve.polynomicalApproximation(self.approximationPower)
 		aproximatedData.scatter(self.supplyCurve(self.xrange),self.xrange,c=grad(self.supplyColor,len(self.xrange),True),s=5)
 		
-		self.supplyCurve2 = Polynom(self.prices,self.supplies)
-		self.supplyCurve2.logarithmicApproximation()
-		aproximatedData.scatter(self.supplyCurve2(self.xrange),self.xrange,c=grad("#ff0000",len(self.xrange),True),s=5)
-		
-		self.supplyCurve3 = Polynom(self.prices,self.supplies)
-		self.supplyCurve3.stepwiseApproximation()
-		aproximatedData.scatter(self.supplyCurve3(self.xrange),self.xrange,c=grad("#00ff00",len(self.xrange),True),s=5)
-		
 		self.grantCurve = Polynom(np.array(self.prices)-self.grant,self.supplies)
 		self.grantCurve.polynomicalApproximation(self.approximationPower)
 		aproximatedData.scatter(self.grantCurve(self.xrange),self.xrange,c=grad(self.supplyColor,len(self.xrange),True),s=5)
@@ -277,38 +156,7 @@ class Market:
 			self.balance = self.demandCurve.intersection(self.supplyCurve,[min(self.prices),max(self.prices)])
 			self.grantBalance = self.demandCurve.intersection(self.grantCurve,[min(self.prices),max(self.prices)])
 			aproximatedData.scatter(self.demandCurve(self.balance),self.balance,c='r')	
-			aproximatedData.scatter(self.demandCurve(self.grantBalance),self.grantBalance,c='r')	
-		
-	def addPolynomicalApproximation(self,fig,gs,row,column,power):
-		p = self.prices
-		d = self.demands
-		s = self.supplies
-	
-		aproximatedData = Market.createDefaultSubPlot(fig,gs,row,column,"Approximation power "+str(power))
-		
-		demandCurve = Polynom(p,d)
-		demandCurve.polynomicalApproximation(power)
-		aproximatedData.scatter(demandCurve(self.xrange),self.xrange,c=grad(self.demandColor,len(self.xrange)),s=5)
-		
-		supplyCurve = Polynom(p,s)
-		supplyCurve.polynomicalApproximation(power)
-		aproximatedData.scatter(supplyCurve(self.xrange),self.xrange,c=grad(self.supplyColor,len(self.xrange),True),s=5)
-		
-		if self.isShowKeyPoints:
-			aproximatedData.scatter(d,p,s=10,c=self.demandColor)
-			aproximatedData.scatter(s,p,s=10,c=self.supplyColor)
-			
-		if self.isShowIntersection:
-			self.balance = demandCurve.intersection(supplyCurve,[min(p),max(p)])
-			aproximatedData.scatter(demandCurve(self.balance),self.balance,c='r')			
-	
-		
-	def marketApproximation(self):
-		fig = plt.figure(constrained_layout=True)
-		gs = fig.add_gridspec(3,3)
-		
-		for pw in range(9):
-			self.addPolynomicalApproximation(fig,gs,pw%3,pw//3,pw+1)
+			aproximatedData.scatter(self.demandCurve(self.grantBalance),self.grantBalance,c='r')
 	
 	def printInfo(self):
 		p = self.prices
@@ -317,10 +165,8 @@ class Market:
 		
 		print("\n---Market status---\n")
 		
-		self.demandCurve.printApproximation()
-		self.supplyCurve.printApproximation()
-		self.supplyCurve2.printApproximation()
-		self.supplyCurve3.printApproximation()
+		print(self.demandCurve.strApproximation())
+		print(self.supplyCurve.strApproximation())
 		
 		t = self.balance
 		print("Balance point with price = ",t)
@@ -358,8 +204,9 @@ if __name__ == "__main__":
 	supplies = [1,	3,		11,		16,	19,		21,		22,		25,		30,	32,	35,		41]
 	
 	market = Market(prices,demands,supplies,2)
-	market.marketPlot()
-	market.marketApproximation()
+	market.plotInputData()
+	market.plotApproximationsCompare()
+	market.plotWithGrant()
 	market.printInfo()
 	
 	plt.show()

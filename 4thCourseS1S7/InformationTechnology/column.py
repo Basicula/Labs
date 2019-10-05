@@ -8,7 +8,7 @@ class Column:
 		
 	@property
 	def __dict__(self):
-		if optionalInfo != None:
+		if self.optionalInfo == None:
 			return {
 					'header' : self.header,
 					'type' : self.type.__dict__

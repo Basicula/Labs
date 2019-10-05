@@ -5,18 +5,7 @@ import json
 class DataBase:
 	def __init__(self,name=""):
 		self.tables = []
-		self.name = name
-		
-	def save(self,filename):
-		with open(filename,'w') as file:
-			json.dump(self,file,default=lambda o: o.__dict__,indent=4)
-			
-	@staticmethod
-	def load(filename):
-		with open(filename,'r') as file:
-			data = json.load(file)
-			return DataBase.fromDict(data)
-				
+		self.name = name				
 			
 	def newTable(self,name):
 		newTable = Table(name)
@@ -42,15 +31,3 @@ class DataBase:
 			db.tables.append(Table.fromDict(table))
 		return db
 				
-def createSampleDB():
-	db = DataBase("Simple data base")
-	db.newTable("Users")
-	db.tables[-1].addColumn("Age",DataType.Integer)
-	db.tables[-1].addColumn("Name",DataType.String)
-	db.tables[-1].addRow([21,"Kek Kekovich"])
-	db.tables[-1].addRow([23,"Jim"])
-	return db
-	
-if __name__ == "__main__":
-	db = createSampleDB()
-	db.save("test.json")

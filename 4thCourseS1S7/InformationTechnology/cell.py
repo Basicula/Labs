@@ -25,14 +25,30 @@ class Cell:
 	def __init__(self,data="",type=DataType.String):
 		self.data = data
 		self.type = type
+		self.optionalInfo = None
 		self.required = True
+		
+	def isPresentData(self):
+		return self.data != ""
+		
+	def setData(self,data):
+		if not Cell.isValidData(data,self.type):
+			raise Exception("Invalid data for current cell")
+		self.data = data
 		
 	@property
 	def __dict__(self):
-		return {
-				'data' : self.data,
-				'type' : self.type
-				}
+		if self.optionalInfo == None:
+			return {
+					'data' : self.data,
+					'type' : self.type
+					}
+		else:
+			return {
+					'data' : self.data,
+					'type' : self.type,
+					self.optionalInfo[0] : self.optionalInfo[1]
+					}
 		
 	@staticmethod
 	def fromDict(dict):

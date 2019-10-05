@@ -2,7 +2,7 @@
     "name": "",
     "tables": [
         {
-            "name": "Mail users",
+            "name": "Main Info",
             "columns": [
                 {
                     "header": "Name",
@@ -13,47 +13,82 @@
                     "type": "integer"
                 },
                 {
-                    "header": "Mail",
-                    "type": "string"
+                    "header": "Symbol",
+                    "type": "char"
                 }
             ],
-            "rows": []
-        },
-        {
-            "name": "Phone users",
-            "columns": [
+            "rows": [
                 {
-                    "header": "Name",
-                    "type": "string"
-                },
-                {
-                    "header": "Age",
-                    "type": "integer"
-                },
-                {
-                    "header": "Phone number",
-                    "type": "string"
+                    "cells": [
+                        {
+                            "data": "",
+                            "type": "string"
+                        },
+                        {
+                            "data": "",
+                            "type": "integer"
+                        },
+                        {
+                            "data": "",
+                            "type": "char"
+                        }
+                    ]
                 }
-            ],
-            "rows": []
+            ]
         },
         {
-            "name": "Float data",
+            "name": "Real info",
             "columns": [
-                {
-                    "header": "Name",
-                    "type": "string"
-                },
                 {
                     "header": "Height",
                     "type": "real"
                 },
                 {
-                    "header": "Weight",
-                    "type": "real"
+                    "header": "+-",
+                    "type": "realinvl",
+                    "interval": [
+                        -5.0,
+                        7.0
+                    ]
                 }
             ],
-            "rows": []
+            "rows": [
+                {
+                    "cells": [
+                        {
+                            "data": "",
+                            "type": "real"
+                        },
+                        {
+                            "data": "",
+                            "type": "realinvl",
+                            "interval": [
+                                -5.0,
+                                7.0
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Pic",
+            "columns": [
+                {
+                    "header": "Picture",
+                    "type": "picture"
+                }
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        {
+                            "data": "",
+                            "type": "picture"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

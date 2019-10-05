@@ -6,13 +6,13 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 class CreateDBWindow(QWidget):
-	def __init__(self,dbController):
+	def __init__(self):
 		super().__init__()
 		self.setWindowTitle("Create new data base")
 		
 		self.setGeometry(100, 100, 400, 400)
 		
-		self.dbController = dbController
+		self.dbController = DataBaseController()
 		
 		self.initUI()
 		
