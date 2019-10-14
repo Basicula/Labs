@@ -26,21 +26,21 @@ def grad(color,n,inv=False):
 	return colors
 
 def solveMatrixEquation(matrix,b):
-	n = len(b)
-	for i in range(n):
-		t = matrix[i][i]
-		for j in range(n):
-			matrix[i][j] /= t
-		b[i] /= t
-	
-		for j in range(n):
-			if j == i:
-				continue
-			t = matrix[j][i]
-			for k in range(i,n):
-				matrix[j][k] -= matrix[i][k] * t
-			b[j] -= b[i] * t
-	return b
+    n = len(b)
+    for i in range(n):
+        t = matrix[i][i]
+        for j in range(n):
+            matrix[i][j] /= t
+        b[i] /= t
+    
+        for j in range(n):
+            if j == i:
+                continue
+            t = matrix[j][i]
+            for k in range(i,n):
+                matrix[j][k] -= matrix[i][k] * t
+            b[j] -= b[i] * t
+    return b
 
 class Polynom:
 	def __init__(self,xs,ys,mode=0):
@@ -86,15 +86,6 @@ class Polynom:
 			elif r != None:
 				return r
 		return None
-		
-	def NewtonPolynomial(self):
-		self.a = []
-		for y in ys:
-			self.a.append(y)
-		
-		for i in range(1,n):
-			for j in range(n-1,i-1,-1):
-				self.a[j] = (self.a[j] - self.a[j-1])/(self.x[j] - self.x[j-i])
 				
 	def strApproximation(self):
 		if self.mode == 0:
@@ -197,3 +188,42 @@ class Polynom:
 					t*=x-self.x[j]
 				res += t * self.a[i]
 			return res
+            
+class Surface:
+    def __init__(self,xs,ys,zs):
+        self.xs = xs
+        self.ys = ys
+        self.zs = zs
+        self.a = []
+    
+    def approximate(self):
+        matrix = []
+        ys = []
+        def f(k,x,y):
+            if k == 0:
+                return 1
+            elif k == 1:
+                return np.log(x)
+            elif k == 2:
+                return np.log(y)
+        for i in range(3):
+            row = []
+            for j in range(3):
+                t = 0
+                for k in range(len(self.xs)):
+                    t += f(i,self.xs[k],self.ys[k])*f(j,self.xs[k],self.ys[k])
+                row.append(t)
+            matrix.append(row)
+            
+            y = 0
+            for j in range(len(self.zs)):
+                y += np.log(self.zs[j]) * f(i,self.xs[j],self.ys[j])
+            ys.append(y)
+        self.a = solveMatrixEquation(matrix,ys)
+        self.a[0] = np.e**self.a[0]
+    
+    def printApproximation(self):
+        print(doubleToStr(self.a[0]) + " * x^" + doubleToStr(self.a[1]) + " * y^" + doubleToStr(self.a[2]))
+        
+    def __call__(self,x,y):
+        return self.a[0] * x**self.a[1] * y**self.a[2]
