@@ -1,0 +1,49 @@
+<title>New Table</title>
+
+<script language="JavaScript">
+function showInterval(divId, element)
+{
+    document.getElementById(divId).style.display = ((element.value == 'RealInvl') ? 'block' : 'none');
+}
+</script>
+
+<form action="" method="post">
+
+<label for="name"><b>Name</b></label>
+<input type="text" placeholder="Enter Name" name="name">
+{% for column in form.table.columns %}
+{{ column.header }} {{ column.type }} {{ column.optionalInfo }}
+<br>
+{% endfor %}
+<hr>
+
+<label for="column_header"><b>Column header</b></label>
+<input type="text" placeholder="Enter header" name="column_header">
+<br>
+
+<label for="column_type"><b>Column type</b></label>
+<select name="column_type" onchange="showInterval('interval_div', this);">
+<option selected>Integer</option>
+<option>Real</option>
+<option>String</option>
+<option>RealInvl</option>
+<option>Char</option>
+<option>Picture</option>
+</select>
+<br>
+
+<div id = "interval_div" style="display: none;">
+<label for="bottom"><b>Bottom:</b></label>
+<input type="number" step = "any" placeholder="Enter bottom" name="bottom">
+<br>
+<label for="top"><b>Top:</b></label>
+<input type="number" step = "any" placeholder="Enter top" name="top">
+</div>
+<br>
+
+<button type="button" onclick="window.location.href = '{{ url_for('addColumn', table = form.table ) }}';">Add column</button>
+<hr>
+
+<input name = "submit_button" type="submit" value="Create">
+
+</form>

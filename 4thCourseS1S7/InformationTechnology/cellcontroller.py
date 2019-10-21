@@ -30,7 +30,7 @@ class CellController:
             self.cellWidget.setValidator(self.charValidator)
             self.cellWidget.editingFinished.connect(self.setData)
         elif type == DataType.String:
-            pass
+            self.cellWidget.editingFinished.connect(self.setData)
         elif type == DataType.Picture:
             self.cellWidget = Image(self.cell.data)
             self.cellWidget.mousePressEvent = lambda _:self.setPicture()

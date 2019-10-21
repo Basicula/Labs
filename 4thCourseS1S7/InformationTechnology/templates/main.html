@@ -1,0 +1,15 @@
+<title>Main</title>
+
+<form action="" method="post">
+
+<h1/>All databases on server</h1>
+
+<ul/>
+{% for database in form.databases %}
+    <li/><a href={{ url_for('database', database = database) }}>{{ database }}</a> </li>
+{% endfor%}
+</ul>
+
+<a href = "/newdatabase"><button type="button" value="call_flask_funtion">New DataBase</button>
+                
+</form>

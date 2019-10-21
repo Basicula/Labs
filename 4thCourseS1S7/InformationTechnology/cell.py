@@ -55,11 +55,15 @@ class Cell:
             return {
                 'data': self.data,
                 'type': self.type,
-                self.optionalInfo[0]: self.optionalInfo[1]
+                self.optionalInfo[0] : self.optionalInfo[1]
             }
 
     @staticmethod
     def fromDict(dict):
+        if 'interval' in dict.keys() :
+            res = Cell(dict['data'], DataType.fromDict(dict['type'])) 
+            res.optionalInfo = ['interval',dict['interval']]
+            return res
         return Cell(dict['data'], DataType.fromDict(dict['type']))
 
     @staticmethod

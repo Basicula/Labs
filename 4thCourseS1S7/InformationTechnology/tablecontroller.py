@@ -27,6 +27,16 @@ class TableController:
         for cell in self.cellControllers[-1]:
             ok &= cell.isPresentData()
         return ok
+        
+    def deleteEmptyRows(self):
+        for row in self.table.rows:
+            remove = True
+            for cell in row:
+                remove &= not cell.isPresentData()
+                if not remove:
+                    break
+            if remove:
+                self.table.rows.remove(row)
 
     def addEmptyRow(self):
         if not self.isNeedEmptyRow():
@@ -81,20 +91,20 @@ class TableController:
         if len(self.table.rows) == 0:
             return
             
-        cells_count = len(self.table.rows[0].cells)
+        cells_count = len(self.table.rows[0])
         columns_count = len(self.table.columns)
         if cells_count < columns_count:
             for row in self.table.rows:
                 i = cells_count
-                while len(row.cells) < columns_count:
-                    row.cells.append(Cell("",self.table.columns[i].type))
+                while len(row) < columns_count:
+                    row.append(Cell("",self.table.columns[i].type))
                     i+=1
         if len(self.table.rows) != self.tableWidget.rowCount():
             for row in self.table.rows:
                 currRowCount = self.tableWidget.rowCount()
                 self.tableWidget.insertRow(currRowCount)
                 rw = []
-                for i, cell in enumerate(row.cells):
+                for i, cell in enumerate(row):
                     c = CellController(cell)
     
                     def updateCell():

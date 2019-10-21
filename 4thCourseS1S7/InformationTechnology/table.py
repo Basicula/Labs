@@ -1,4 +1,4 @@
-from row import *
+from cell import *
 from column import *
 
 
@@ -22,7 +22,10 @@ class Table:
         for column in dict['columns']:
             table.columns.append(Column.fromDict(column))
         for row in dict['rows']:
-            table.rows.append(Row.fromDict(row))
+            rw = []
+            for cell in row:
+                rw.append(Cell.fromDict(cell))
+            table.rows.append(rw)
         return table
 
     def addColumnData(self, header, type):
@@ -36,10 +39,10 @@ class Table:
         for i in range(len(data)):
             if Cell.isValidData(data[i], self.columns[i].type):
                 cells.append(Cell(data[i], self.columns[i].type))
-        self.rows.append(Row(cells))
+        self.rows.append(cells)
 
     def addRow(self, row):
-        self.rows.append(Row(row))
+        self.rows.append(row)
 
     def getHeaders(self):
         headers = []

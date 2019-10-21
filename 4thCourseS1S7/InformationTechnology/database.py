@@ -18,6 +18,13 @@ class DataBase:
         else:
             raise Exception("Given table is not a Table object")
             
+    def getTable(self,name):
+        for table in self.tables:
+            print("blabla",name,table.name)
+            if table.name == name:
+                return table
+        return None
+            
     def mergeTables(self,table_names,new_name=""):
         if new_name == "":
             new_name = ' + '.join(table_names)
@@ -31,13 +38,13 @@ class DataBase:
                 rows = []
                 for row in table.rows:
                     rw = pre_row.copy()
-                    for cell in row.cells:
+                    for cell in row:
                         rw.append(cell)
                     rows.append(rw)
                 for column in table.columns:
                     new_table.addColumn(column)
                     for row in new_table.rows:
-                        row.cells.append(Cell("",column.type))
+                        row.append(Cell("",column.type))
                     pre_row.append(Cell("",column.type))
                 for row in rows:
                     new_table.addRow(row)

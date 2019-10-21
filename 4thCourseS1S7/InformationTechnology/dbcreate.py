@@ -24,6 +24,7 @@ class CreateDBWindow(QWidget):
         self.nameLabel = QLabel("Database name:")
         self.nameEditLayout.addWidget(self.nameLabel)
         self.nameEdit = QLineEdit()
+        self.nameEdit.textChanged.connect(self.changeTableName)
         self.nameEditLayout.addWidget(self.nameEdit)
         self.mainLayout.addLayout(self.nameEditLayout)
 
@@ -41,6 +42,9 @@ class CreateDBWindow(QWidget):
         self.mainLayout.addLayout(self.buttonsLayout)
 
         self.setLayout(self.mainLayout)
+        
+    def changeTableName(self):
+        self.dbController.changeName(self.nameEdit.text())
 
     def create(self):
         self.close()

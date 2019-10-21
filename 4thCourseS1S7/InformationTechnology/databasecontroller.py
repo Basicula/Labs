@@ -35,6 +35,9 @@ class DataBaseController:
         return res
 
     def mergeTables(self, table_names,new_name=""):
+        for tbc in self.tableControllers:
+            if tbc.table.name in table_names:
+                tbc.deleteEmptyRows()
         new_table = self.database.mergeTables(table_names.copy(),new_name)
         k = 0
         for i in range(len(self.tableControllers)):
@@ -53,6 +56,8 @@ class DataBaseController:
             tbcontroller.addEmptyRow()
 
     def saveDB(self, filename):
+        for tbc in self.tableControllers:
+            tbc.deleteEmptyRows()
         with open(filename, 'w') as file:
             json.dump(self.database, file, default=lambda o: o.__dict__, indent=4)
 
