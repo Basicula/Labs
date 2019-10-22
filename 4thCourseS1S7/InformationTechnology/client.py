@@ -60,9 +60,23 @@ class Client:
             
     def deleteTables(self,db,names):
         try:
-            self.socket.send(json.dumps({'delete' : names , 'database' : db}).encode(CODE))
+            self.socket.send(json.dumps({'delete tables' : names , 'database' : db}).encode(CODE))
         except:
             print("server is dead")
+            
+    def saveDataBase(self,db):
+        try:
+            self.socket.send(json.dumps({'save' : json.dumps(db,default=lambda o: o.__dict__)}).encode(CODE))
+        except:
+            print("server is dead")
+            
+    def deleteDataBases(self,names):
+        try:
+            self.socket.send(json.dumps({'delete databases' : names}).encode(CODE))
+        except:
+            print("server is dead")
+            
+    
 
 if __name__ == "__main__":
     client = Client()

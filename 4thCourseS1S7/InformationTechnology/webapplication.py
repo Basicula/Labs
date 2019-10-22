@@ -13,11 +13,17 @@ app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 client = Client()
 client.connect()
 
-new_database = DataBase()
+new_database = None
+new_table = None
 
-@app.route("/", methods=['GET'])
+@app.route("/", methods=['GET','POST'])
 def main():
     form = Form(request.form)
+    
+    if request.method == 'POST':
+        if request.form['submit_button'] == 'Delete selected databases':
+            client.deleteDataBases(request.form.getlist('selected_databases'))
+    
     form.databases = client.getAllDataBases()
 
     print(form.errors)
@@ -42,37 +48,62 @@ def database(database):
 @app.route("/newdatabase", methods = ['GET','POST'])
 def newDatabase():
     form = Form(request.form)
-    
-    new_database = DataBase()
+    global new_database
+    if new_database == None:
+        new_database = DataBase()
+    if request.method == 'POST':
+        new_database.name = request.form['name']
+        client.saveDataBase(new_database)
+        new_database = None
+        return redirect('/')
+    form.database = new_database
     
     return render_template('newdatabase.html', form=form)
     
 @app.route("/newtable", methods = ['GET','POST'])
 def newTable():
     form = Form(request.form)
-    if request.method == 'GET':
-        form.table = Table()
-    elif request.method == 'POST':
-        pass
+    global new_table
+    if new_table == None:
+        new_table = Table()
+    if request.method == 'POST':
+        if request.form['submit_button'] == 'Create':
+            new_table.name = request.form['table_name']
+            new_database.addTable(new_table)
+            new_table = None
+            return redirect('/newdatabase')
+        elif request.form['submit_button'] == 'Add column':
+            new_table.name = request.form['table_name']
+            column = Column(request.form['column_header'],DataType.fromDict(request.form['column_type']))
+            if request.form['column_type'] == 'realinvl':
+                column.optionalInfo = ['interval',[request.form['bottom'],request.form['top']]]
+            new_table.addColumn(column)
+    form.table = new_table
     
     return render_template('newtable.html', form=form)
     
-@app.route("/addcolumn/<table>", methods = ['GET','POST'])
-def addColumn(table):
-    form = Form(request.form)
-    print(request.form['column_header'])
-    #column = Column(request.form['column_header'],request.form['column_type'])
-    #column.optionalInfo
-    #table.addColumnData()
-    return redirect('/newtable')
-    
-@app.route("/database/<database>/<table>", methods=['GET'])
+@app.route("/database/<database>/<table>", methods=['GET','POST'])
 def table(database,table):
     form = Form(request.form)
-    form.table = client.getDataBaseByName(database).getTable(table)
-    for row in form.table.rows:
-        for cell in row:
-            cell.type = cell.type.__dict__
+    global new_table
+    if new_table == None:
+        new_table = client.getDataBaseByName(database).getTable(table)
+    
+    if request.method == 'POST':
+        if request.form['submit_button'] == 'Save':
+            new_table = None
+            return redirect('/database')
+        elif request.form['submit_button'] == 'Add row':
+            print(json.dumps(new_table,default=lambda o: o.__dict__, indent=4))
+            row = []
+            for column in new_table.columns:
+                cell = Cell()
+                cell.type = column.type
+                cell.optionalInfo = column.optionalInfo
+                row.append(cell)
+            new_table.rows.append(row)
+    
+    form.table = new_table
     
     return render_template('table.html',form=form)
 

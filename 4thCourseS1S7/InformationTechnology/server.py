@@ -80,6 +80,13 @@ class Server:
             print(address,' >> ', msg)
             if msg == 'all names':
                 client_socket.send(json.dumps({'databases' : self.getAvaliableDataBases()}).encode(CODE))
+            elif 'save' in msg:
+                request = json.loads(msg)
+                database = DataBase.fromDict(json.loads(request['save']))
+                fileName = database.name + '.json'
+                self.dbfiles.append(fileName)
+                with open(self.path + fileName, 'w') as file:
+                    json.dump(database, file, default=lambda o: o.__dict__, indent=4)
             elif 'name' in msg:
                 fileName = json.loads(msg)['name'] + '.json'
                 with open(self.path + fileName, 'r') as file:
@@ -95,9 +102,9 @@ class Server:
                     database.mergeTables(names)
                     with open(self.path + db, 'w') as file:
                         json.dump(database, file, default=lambda o: o.__dict__, indent=4)
-            elif 'delete' in msg:
+            elif 'delete tables' in msg:
                 request = json.loads(msg)
-                names = request['delete']
+                names = request['delete tables']
                 db = request['database'] + '.json'
                 with open(self.path + db, 'r') as file:
                     data = json.load(file)
@@ -107,6 +114,14 @@ class Server:
                             database.tables.remove(table)
                     with open(self.path + db, 'w') as file:
                         json.dump(database, file, default=lambda o: o.__dict__, indent=4)
+            elif 'delete databases' in msg:
+                request = json.loads(msg)
+                names = request['delete databases']
+                self.getAllFiles()
+                for name in names:
+                    fileName = name + '.json'
+                    self.dbfiles.remove(fileName)
+                    os.remove(self.path+fileName)
             else:
                 client_socket.send("accept".encode(CODE))
             

@@ -3,16 +3,18 @@
 <script language="JavaScript">
 function showInterval(divId, element)
 {
-    document.getElementById(divId).style.display = ((element.value == 'RealInvl') ? 'block' : 'none');
+    document.getElementById(divId).style.display = ((element.value == 'realinvl') ? 'block' : 'none');
 }
 </script>
 
 <form action="" method="post">
 
 <label for="name"><b>Name</b></label>
-<input type="text" placeholder="Enter Name" name="name">
+<input type="text" placeholder="Enter Name" name="table_name" value= {{ form.table.name }}>
+<br>
+
 {% for column in form.table.columns %}
-{{ column.header }} {{ column.type }} {{ column.optionalInfo }}
+{{ column.header }} {{ column.type }} {% if column.optionalInfo %} {{ column.optionalInfo[1] }} {% endif %}
 <br>
 {% endfor %}
 <hr>
@@ -23,12 +25,12 @@ function showInterval(divId, element)
 
 <label for="column_type"><b>Column type</b></label>
 <select name="column_type" onchange="showInterval('interval_div', this);">
-<option selected>Integer</option>
-<option>Real</option>
-<option>String</option>
-<option>RealInvl</option>
-<option>Char</option>
-<option>Picture</option>
+<option selected value='integer'>Integer</option>
+<option value='real'>Real</option>
+<option value='string'>String</option>
+<option value='realinvl'>RealInvl</option>
+<option value='char'>Char</option>
+<option value='picture'>Picture</option>
 </select>
 <br>
 
@@ -41,7 +43,7 @@ function showInterval(divId, element)
 </div>
 <br>
 
-<button type="button" onclick="window.location.href = '{{ url_for('addColumn', table = form.table ) }}';">Add column</button>
+<input name = "submit_button" type="submit" value="Add column">
 <hr>
 
 <input name = "submit_button" type="submit" value="Create">

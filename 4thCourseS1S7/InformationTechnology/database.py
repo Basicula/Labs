@@ -20,7 +20,6 @@ class DataBase:
             
     def getTable(self,name):
         for table in self.tables:
-            print("blabla",name,table.name)
             if table.name == name:
                 return table
         return None
@@ -62,6 +61,7 @@ class DataBase:
 
     @staticmethod
     def fromDict(dict):
+        print(dict)
         db = DataBase(dict['name'])
         for table in dict['tables']:
             db.tables.append(Table.fromDict(table))
