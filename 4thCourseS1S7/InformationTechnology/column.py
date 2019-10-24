@@ -23,4 +23,7 @@ class Column:
 
     @staticmethod
     def fromDict(dict):
-        return Column(dict['header'], DataType.fromDict(dict['type']))
+        column = Column(dict['header'], DataType.fromDict(dict['type']))
+        if 'interval' in dict:
+            column.optionalInfo = ['interval',dict['interval']]
+        return column
