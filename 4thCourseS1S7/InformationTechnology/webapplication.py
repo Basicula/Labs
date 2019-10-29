@@ -48,47 +48,6 @@ def database(database):
     
     return render_template('database.html',form=form)
     
-    
-@app.route("/newdatabase", methods = ['GET','POST'])
-def newDatabase():
-    form = Form(request.form)
-    global new_database
-    if new_database == None:
-        new_database = DataBase()
-    if request.method == 'POST':
-        new_database.name = request.form['name']
-        client.saveDataBase(new_database)
-        new_database = None
-        return redirect('/')
-    form.database = new_database
-    
-    return render_template('newdatabase.html', form=form)
-    
-@app.route("/newtable", methods = ['GET','POST'])
-def newTable():
-    form = Form(request.form)
-    global new_table
-    if new_table == None:
-        new_table = Table()
-    if request.method == 'POST':
-        if request.form['submit_button'] == 'Create':
-            new_table.name = request.form['table_name']
-            print(json.dumps(new_table,default=lambda o: o.__dict__))
-            new_database.addTable(new_table)
-            new_table = None
-            return redirect('/newdatabase')
-        elif request.form['submit_button'] == 'Add column':
-            new_table.name = request.form['table_name']
-            column = Column(request.form['column_header'],DataType.fromDict(request.form['column_type']))
-            if request.form['column_type'] == 'realinvl':
-                column.optionalInfo = ['interval',[request.form['bottom'],request.form['top']]]
-            new_table.addColumn(column)
-    elif request.method == 'GET':
-        new_table = Table()
-    form.table = new_table
-    
-    return render_template('newtable.html', form=form)
-    
 @app.route("/database/<database>/<table>", methods=['GET','POST'])
 def table(database,table):
     global new_table
@@ -122,6 +81,71 @@ def table(database,table):
     form.table = new_table
     
     return render_template('table.html',form=form)
+
+@app.route("/allnamesjson", methods=['GET'])
+def allnamesjson():
+    return json.dumps(client.getAllDataBases(),default=lambda o: o.__dict__, indent=4)
+    
+@app.route("/databasejson/<database>", methods=['GET'])
+def databasejson(database):
+    return json.dumps(client.getDataBaseByName(database),default=lambda o: o.__dict__, indent=4)
+    
+@app.route("/tablejson/<database>/<table>", methods=['GET'])
+def tablejson(database,table):
+    return json.dumps(client.getDataBaseByName(database).getTable(table),default=lambda o: o.__dict__, indent=4)
+    
+@app.route("/newdatabase", methods = ['GET','POST'])
+def newDatabase():
+    form = Form(request.form)
+    global new_database
+    if new_database == None:
+        new_database = DataBase()
+    if request.method == 'POST':
+        new_database.name = request.form['name']
+        client.saveDataBase(new_database)
+        new_database = None
+        return redirect('/')
+    form.database = new_database
+    
+    return render_template('newdatabase.html', form=form)
+    
+@app.route("/addtable", methods = ['POST'])
+def addtable():
+    if not request.json and not 'database' in request.json and not 'table' in request.json:
+        return {}
+    database = client.getDataBaseByName(request.json['database'])
+    database.addTable(Table.fromDict(request.json['table']))
+    client.saveDataBase(database)
+    return {}
+    
+@app.route("/deletetable/<database>/<table>", methods = ['DELETE'])
+def deletetable(database,table):
+    client.deleteTables(database,[table])
+    return {}
+    
+@app.route("/newtable", methods = ['GET','POST'])
+def newTable():
+    form = Form(request.form)
+    global new_table
+    if new_table == None:
+        new_table = Table()
+    if request.method == 'POST':
+        if request.form['submit_button'] == 'Create':
+            new_table.name = request.form['table_name']
+            new_database.addTable(new_table)
+            new_table = None
+            return redirect('/newdatabase')
+        elif request.form['submit_button'] == 'Add column':
+            new_table.name = request.form['table_name']
+            column = Column(request.form['column_header'],DataType.fromDict(request.form['column_type']))
+            if request.form['column_type'] == 'realinvl':
+                column.optionalInfo = ['interval',[request.form['bottom'],request.form['top']]]
+            new_table.addColumn(column)
+    elif request.method == 'GET':
+        new_table = Table()
+    form.table = new_table
+    
+    return render_template('newtable.html', form=form)
 
 if __name__ == "__main__":
     app.run()

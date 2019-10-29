@@ -18,6 +18,7 @@ class Table:
 
     @staticmethod
     def fromDict(dict):
+        print(dict)
         table = Table(dict['name'])
         for column in dict['columns']:
             table.columns.append(Column.fromDict(column))
