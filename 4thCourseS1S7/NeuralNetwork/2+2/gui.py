@@ -80,16 +80,16 @@ class MainWidget(QWidget):
             bbox.miny -= 1
             bbox.maxx += 1
             bbox.maxy += 1
-            #file = str(len(self.items)) + ".png"
-            #pixmap = QPixmap(bbox.maxx - bbox.minx, bbox.maxy - bbox.miny)
-            #pixmap.fill(Qt.white)
-            #for i in range(1,len(self.currItem)):
-            #    painter = QPainter(pixmap)
-            #    painter.setPen(QPen(self.brushColor, self.brushSize, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-            #    painter.drawLine(QPoint(self.currItem[i].x() - bbox.minx,self.currItem[i].y() - bbox.miny), QPoint(self.currItem[i-1].x() - bbox.minx,self.currItem[i-1].y() - bbox.miny))
-            #    painter.end()
-            #    self.update()
-            #pixmap.save(file, "PNG");
+            file = str(len(self.items)) + ".png"
+            pixmap = QPixmap(bbox.maxx - bbox.minx, bbox.maxy - bbox.miny)
+            pixmap.fill(Qt.white)
+            for i in range(1,len(self.currItem)):
+                painter = QPainter(pixmap)
+                painter.setPen(QPen(self.brushColor, self.brushSize, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+                painter.drawLine(QPoint(self.currItem[i].x() - bbox.minx,self.currItem[i].y() - bbox.miny), QPoint(self.currItem[i-1].x() - bbox.minx,self.currItem[i-1].y() - bbox.miny))
+                painter.end()
+                self.update()
+            pixmap.save(file, "PNG");
             self.items.append(self.currItem)
             
     def undo(self):
