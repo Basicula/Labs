@@ -1,16 +1,30 @@
-# example of loading the mnist dataset
-from keras.datasets import mnist
-from matplotlib import pyplot
-# load dataset
-(trainX, trainy), (testX, testy) = mnist.load_data()
-# summarize loaded dataset
-print('Train: X=%s, y=%s' % (trainX.shape, trainy.shape))
-print('Test: X=%s, y=%s' % (testX.shape, testy.shape))
-# plot first few images
-for i in range(9):
-	# define subplot
-	pyplot.subplot(330 + 1 + i)
-	# plot raw pixel data
-	pyplot.imshow(trainX[i], cmap=pyplot.get_cmap('gray'))
-# show the figure
-pyplot.show()
+import numpy as np
+
+import random
+
+def sigmoid(x):
+    return 1/(1+np.exp(-x))
+
+class Perceptron:
+    def __init__(self,layer_sizes):
+        self.num_layers = len(layer_sizes)
+        self.layer_sizes = layer_sizes
+        self.biases = [np.random.randn(x,1) for x in self.layer_sizes[1:]]
+        self.weight = [np.random.randn(y,x) for x,y in zip(self.layer_sizes,self.layer_sizes[1:])]
+        
+    def predict(self,imput):
+        out = input
+        for w,b in zip(self.weight,self.biases):
+            out = sigmoid(np.dot(w,out) + b)
+        return out
+        
+    """ SGD - stochastic gradient descent """
+    def trainSGD(self,training_data,epochs,mini_batch_size,learning_rate):
+        for i in range(epochs):
+            random.shuffle(training_data)
+            k = random.randint(0,len(training_data))
+            mini_batch = training_data[k:k+mini_batch_size]
+            
+        
+if __name__=="__main__":
+    k = random.randint(0,len([1,2,3,4,5,6]))
