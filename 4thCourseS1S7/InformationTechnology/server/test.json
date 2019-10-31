@@ -2,7 +2,7 @@
     "name": "test",
     "tables": [
         {
-            "name": "Test Strings + Test Numbers",
+            "name": "Test Strings + Test Numbers + 123",
             "columns": [
                 {
                     "header": "String Type",
@@ -23,6 +23,10 @@
                 {
                     "header": "RealInvl[-1;1]",
                     "type": "realinvl"
+                },
+                {
+                    "header": "123",
+                    "type": "integer"
                 }
             ],
             "rows": [
@@ -46,6 +50,10 @@
                     {
                         "data": "",
                         "type": "realinvl"
+                    },
+                    {
+                        "data": "",
+                        "type": "integer"
                     }
                 ],
                 [
@@ -68,6 +76,10 @@
                     {
                         "data": "",
                         "type": "realinvl"
+                    },
+                    {
+                        "data": "",
+                        "type": "integer"
                     }
                 ],
                 [
@@ -94,6 +106,10 @@
                             0,
                             1
                         ]
+                    },
+                    {
+                        "data": "",
+                        "type": "integer"
                     }
                 ],
                 [
@@ -120,6 +136,10 @@
                             0,
                             1
                         ]
+                    },
+                    {
+                        "data": "",
+                        "type": "integer"
                     }
                 ],
                 [
@@ -146,19 +166,91 @@
                             0,
                             1
                         ]
+                    },
+                    {
+                        "data": "",
+                        "type": "integer"
+                    }
+                ],
+                [
+                    {
+                        "data": "",
+                        "type": "string"
+                    },
+                    {
+                        "data": "",
+                        "type": "char"
+                    },
+                    {
+                        "data": "",
+                        "type": "integer"
+                    },
+                    {
+                        "data": "",
+                        "type": "real"
+                    },
+                    {
+                        "data": "",
+                        "type": "realinvl"
+                    },
+                    {
+                        "data": "123",
+                        "type": "integer"
+                    }
+                ],
+                [
+                    {
+                        "data": "",
+                        "type": "string"
+                    },
+                    {
+                        "data": "",
+                        "type": "char"
+                    },
+                    {
+                        "data": "",
+                        "type": "integer"
+                    },
+                    {
+                        "data": "",
+                        "type": "real"
+                    },
+                    {
+                        "data": "",
+                        "type": "realinvl"
+                    },
+                    {
+                        "data": "12321",
+                        "type": "integer"
+                    }
+                ],
+                [
+                    {
+                        "data": "",
+                        "type": "string"
+                    },
+                    {
+                        "data": "",
+                        "type": "char"
+                    },
+                    {
+                        "data": "",
+                        "type": "integer"
+                    },
+                    {
+                        "data": "",
+                        "type": "real"
+                    },
+                    {
+                        "data": "",
+                        "type": "realinvl"
+                    },
+                    {
+                        "data": "",
+                        "type": "integer"
                     }
                 ]
             ]
-        },
-        {
-            "name": "123",
-            "columns": [
-                {
-                    "header": "123",
-                    "type": "integer"
-                }
-            ],
-            "rows": []
         }
     ]
 }

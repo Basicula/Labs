@@ -69,17 +69,17 @@ th {
                 {% if cell.type.__dict__ == 'integer' %}
                 <td><input type = 'number' step=1 value = '{{ cell.data }}' name='{{ cell_name }}'></td>
                 {% endif %} 
-                {% if cell.type.__dict_ == 'real' %}
-                <td><input type = 'number' step = 'any' value = {{ cell.data }} name='{{ cell_name }}'></td>
+                {% if cell.type.__dict__ == 'real' %}
+                <td><input type = 'number' step = 'any' value = '{{ cell.data }}' name='{{ cell_name }}'></td>
                 {% endif %} 
                 {% if cell.type.__dict__ == 'string' %}
-                <td><input type = 'text' value = {{ cell.data }} name='{{ cell_name }}'></td>
+                <td><input type = 'text' value = '{{ cell.data }}' name='{{ cell_name }}'></td>
                 {% endif %} 
                 {% if cell.type.__dict__ == 'char' %}
-                <td><input type = 'text' maxlength = 1 value = {{ cell.data }} name='{{ cell_name }}'></td>
+                <td><input type = 'text' maxlength = 1 value = '{{ cell.data }}' name='{{ cell_name }}'></td>
                 {% endif %} 
                 {% if cell.type.__dict__ == 'realinvl' %}
-                <td><input type = 'number' min = {{ cell.optionalInfo[1][0] }} max = {{ cell.optionalInfo[1][1] }} value = {{ cell.data }} name='{{ cell_name }}'></td>
+                <td><input type = 'number' min = '{{ cell.optionalInfo[1][0] }}' max = '{{ cell.optionalInfo[1][1] }}' value = '{{ cell.data }}' name='{{ cell_name }}'></td>
                 {% endif %} 
             {% endfor %}
         </tr>

@@ -38,6 +38,7 @@ def database(database):
     
     if request.method == 'POST':
         if request.form['submit_button'] == "Merge selected tables":
+            new_table = None
             client.mergeTables(database,request.form.getlist('selected_table'))
         elif request.form['submit_button'] == "Delete selected tables":
             client.deleteTables(database,request.form.getlist('selected_table'))
@@ -60,7 +61,8 @@ def table(database,table):
         elif request.form['submit_button'] == 'Save':
             for i,row in enumerate(new_table.rows):
                 for j,cell in enumerate(row):
-                    cell.data = request.form[str(i)+'.'+str(j)]
+                    if str(i)+'.'+str(j) in request.form:
+                        cell.data = request.form[str(i)+'.'+str(j)]
             client.updateTable(database,table,new_table)
             new_table = None
             return redirect(url_for('database',database=database))
@@ -68,7 +70,6 @@ def table(database,table):
             for i,row in enumerate(new_table.rows):
                 for j,cell in enumerate(row):
                     cell.data = request.form[str(i)+'.'+str(j)]
-            client.updateTable(database,table,new_table)
             row = []
             for column in new_table.columns:
                 cell = Cell()
@@ -76,7 +77,8 @@ def table(database,table):
                 cell.optionalInfo = column.optionalInfo
                 row.append(cell)
             new_table.rows.append(row)
-            
+    
+    print(new_table.__dict__)
     form = Form(request.form)
     form.table = new_table
     
