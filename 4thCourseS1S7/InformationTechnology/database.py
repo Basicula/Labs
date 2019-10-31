@@ -20,7 +20,6 @@ class DataBase:
             
     def getTable(self,name):
         for table in self.tables:
-            print("blabla",name,table.name)
             if table.name == name:
                 return table
         return None

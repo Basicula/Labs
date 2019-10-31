@@ -81,7 +81,7 @@ class MainWidget(QWidget):
             bbox.miny -= 1
             bbox.maxx += 1
             bbox.maxy += 1
-            #file = str(len(self.items)) + ".png"
+            file = str(len(self.items)) + ".png"
             width = bbox.maxx - bbox.minx
             height = bbox.maxy - bbox.miny
             pixmap = QPixmap(width,height)
@@ -102,6 +102,8 @@ class MainWidget(QWidget):
                     maskrow.append(0 if pixel[0] > 0 or pixel[1] > 0 or pixel[2] > 0 else 1)
                 bitmask.append(maskrow)                    
             print(width,height,np.array(bitmask))
+                self.update()
+            pixmap.save(file, "PNG");
             self.items.append(self.currItem)
             
     def undo(self):

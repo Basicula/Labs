@@ -1,4 +1,38 @@
 <head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+  $("td[id='integer']").on( "keydown",function(event) {
+       if(event.which != 8 && event.which !=46 && isNaN(String.fromCharCode(event.which))){
+           event.preventDefault(); 
+       }
+	});
+   $("td[id='char']").on( "keydown",function(event) {
+       if($(this).text().length === 1) {
+           event.preventDefault(); 
+       }
+	});
+   $("td[name='0.0']").on( "keydown",function(event) {
+       if($(this).text().length === 1) {
+           event.preventDefault(); 
+       }
+	});
+   $("td[id='real']").on( "keydown",function(event) {
+       if(isNaN(String.fromCharCode(event.which))) {
+           event.preventDefault(); 
+       }
+       var ch = String.fromCharCode(event.which)
+       if(event.which==190){
+        ch = '.';
+       }
+       var text = $(this).text() + ch;
+       if(!isNumeric(text)) {
+            event.preventDefault();
+        }
+	});
+});
+</script>
+
 <style>
 table, th, td {
   border: 1px solid black;
@@ -17,40 +51,44 @@ th {
 <title>Table</title>
 
 <form action="" method="post">
-{{ form.integer_field }}
 <h1/>This is table: {{ form.table.name }}</h1>
-    <div>
-        <table style="width:100%">
-            <thead>
-                <tr>
-                    {% for column in form.table.columns %}
-                    <th> {{ column.header }} </th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in form.table.rows %}
-                <tr>
-                    {% for cell in row %}
-                            {% if cell.type == 'integer' %}
-                            <td><input type = 'number' value = {{ cell.data }}></td>
-                            {% endif %} 
-                            {% if cell.type == 'real' %}
-                            <td><input type = 'number' step = 'any' value = {{ cell.data }}></td>
-                            {% endif %} 
-                            {% if cell.type == 'string' %}
-                            <td><input type = 'text' value = {{ cell.data }}></td>
-                            {% endif %} 
-                            {% if cell.type == 'char' %}
-                            <td><input type = 'text' maxlength = 1 value = {{ cell.data }}></td>
-                            {% endif %} 
-                            {% if cell.type == 'realinvl' %}
-                            <td><input type = 'number' min = {{ cell.optionalInfo[1][0] }} max = {{ cell.optionalInfo[1][1] }} value = {{ cell.data }}></td>
-                            {% endif %} 
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<table style="width:100%" name='table'>
+    <thead>
+        <tr>
+            {% for column in form.table.columns %}
+            <th> {{ column.header }} </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in form.table.rows %}
+        <tr>
+            {% set row_id = loop.index0 %}
+            {% for cell in row %}
+                {% set cell_name = row_id|string + '.' + loop.index0|string %}
+                {% if cell.type.__dict__ == 'integer' %}
+                <td><input type = 'number' step=1 value = '{{ cell.data }}' name='{{ cell_name }}'></td>
+                {% endif %} 
+                {% if cell.type.__dict__ == 'real' %}
+                <td><input type = 'number' step = 'any' value = '{{ cell.data }}' name='{{ cell_name }}'></td>
+                {% endif %} 
+                {% if cell.type.__dict__ == 'string' %}
+                <td><input type = 'text' value = '{{ cell.data }}' name='{{ cell_name }}'></td>
+                {% endif %} 
+                {% if cell.type.__dict__ == 'char' %}
+                <td><input type = 'text' maxlength = 1 value = '{{ cell.data }}' name='{{ cell_name }}'></td>
+                {% endif %} 
+                {% if cell.type.__dict__ == 'realinvl' %}
+                <td><input type = 'number' min = '{{ cell.optionalInfo[1][0] }}' max = '{{ cell.optionalInfo[1][1] }}' value = '{{ cell.data }}' name='{{ cell_name }}'></td>
+                {% endif %} 
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<br>
+
+<input name = "submit_button" type="submit" value="Add row"> 
+<input name = "submit_button" type="submit" value="Save">
+<input name = "submit_button" type="submit" value="Back">
 </form>

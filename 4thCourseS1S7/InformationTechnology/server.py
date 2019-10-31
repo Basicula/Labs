@@ -80,14 +80,21 @@ class Server:
             print(address,' >> ', msg)
             if msg == 'all names':
                 client_socket.send(json.dumps({'databases' : self.getAvaliableDataBases()}).encode(CODE))
-            elif 'name' in msg:
-                fileName = json.loads(msg)['name'] + '.json'
+            elif 'save database' in msg:
+                request = json.loads(msg)['save database']
+                database = DataBase.fromDict(json.loads(request))
+                fileName = database.name + '.json'
+                self.dbfiles.append(fileName)
+                with open(self.path + fileName, 'w') as file:
+                    json.dump(database, file, default=lambda o: o.__dict__, indent=4)
+            elif 'database by name' in msg:
+                fileName = json.loads(msg)['database by name'] + '.json'
                 with open(self.path + fileName, 'r') as file:
                     data = json.load(file)
                     client_socket.send(json.dumps(data,indent=4).encode(CODE))
-            elif 'merge' in msg:
+            elif 'merge tables' in msg:
                 request = json.loads(msg)
-                names = request['merge']
+                names = request['merge tables']
                 db = request['database'] + '.json'
                 with open(self.path + db, 'r') as file:
                     data = json.load(file)
@@ -95,9 +102,9 @@ class Server:
                     database.mergeTables(names)
                     with open(self.path + db, 'w') as file:
                         json.dump(database, file, default=lambda o: o.__dict__, indent=4)
-            elif 'delete' in msg:
+            elif 'delete tables' in msg:
                 request = json.loads(msg)
-                names = request['delete']
+                names = request['delete tables']
                 db = request['database'] + '.json'
                 with open(self.path + db, 'r') as file:
                     data = json.load(file)
@@ -106,6 +113,30 @@ class Server:
                         if table.name in names:
                             database.tables.remove(table)
                     with open(self.path + db, 'w') as file:
+                        json.dump(database, file, default=lambda o: o.__dict__, indent=4)
+            elif 'delete databases' in msg:
+                request = json.loads(msg)
+                names = request['delete databases']
+                self.getAllFiles()
+                for name in names:
+                    fileName = name + '.json'
+                    if fileName in self.dbfiles:
+                        self.dbfiles.remove(fileName)
+                        os.remove(self.path+fileName)
+            elif 'update table' in msg:
+                request = json.loads(msg)['update table']
+                dbfile = request['database'] + '.json'
+                table_name = request['table']
+                print('table',json.loads(request['new_table']))
+                new_table = Table.fromDict(json.loads(request['new_table']))
+                with open(self.path + dbfile, 'r') as file:
+                    data = json.load(file)
+                    database = DataBase.fromDict(data)
+                    for i,table in enumerate(database.tables):
+                        if table.name in table_name:
+                            database.tables[i] = new_table
+                            break
+                    with open(self.path + dbfile, 'w') as file:
                         json.dump(database, file, default=lambda o: o.__dict__, indent=4)
             else:
                 client_socket.send("accept".encode(CODE))

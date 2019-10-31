@@ -1,0 +1,5 @@
+curl -i -H "Content-Type: application/json" -X POST -d "{\"database\": \"test\",\"table\": {\"name\": \"123\",\"columns\": [{\"header\": \"123\",\"type\": \"integer\"}],\"rows\": []}}" http://localhost:5000/addtable
+curl -XDELETE -H 'Content-Type: application/json' http://localhost:5000/deletetable/test/123
+curl -i http://localhost:5000/databasejson/
+curl -i http://localhost:5000/allnamesjson
+curl -i http://localhost:5000/tablejson/test/test

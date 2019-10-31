@@ -27,7 +27,6 @@ class Client:
     def get(self):
         try:
             data = self.socket.recv(BUFFER_SIZE).decode(CODE)
-            print(type(data))
             return data
         except:
             print("connection lost")
@@ -45,7 +44,7 @@ class Client:
             
     def getDataBaseByName(self,name):
         try:
-            self.socket.send(json.dumps({'name' : name}).encode(CODE))
+            self.socket.send(json.dumps({'database by name' : name}).encode(CODE))
         except:
             print("server is dead")
             
@@ -54,13 +53,31 @@ class Client:
         
     def mergeTables(self,db,names):
         try:
-            self.socket.send(json.dumps({'merge' : names , 'database' : db}).encode(CODE))
+            self.socket.send(json.dumps({'merge tables' : names , 'database' : db}).encode(CODE))
         except:
             print("server is dead")
             
     def deleteTables(self,db,names):
         try:
-            self.socket.send(json.dumps({'delete' : names , 'database' : db}).encode(CODE))
+            self.socket.send(json.dumps({'delete tables' : names , 'database' : db}).encode(CODE))
+        except:
+            print("server is dead")
+            
+    def saveDataBase(self,db):
+        try:
+            self.socket.send(json.dumps({'save database' : json.dumps(db,default=lambda o: o.__dict__)}).encode(CODE))
+        except:
+            print("server is dead")
+            
+    def deleteDataBases(self,names):
+        try:
+            self.socket.send(json.dumps({'delete databases' : names}).encode(CODE))
+        except:
+            print("server is dead")
+            
+    def updateTable(self,database,table,new_table):
+        try:
+            self.socket.send(json.dumps({'update table' : {'database':database,'table':table,'new_table':json.dumps(new_table,default=lambda o: o.__dict__)}}).encode(CODE))
         except:
             print("server is dead")
 
