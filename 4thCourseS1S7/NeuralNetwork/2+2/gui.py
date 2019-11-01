@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+from neuralnetwork import *
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import numpy as np
@@ -37,6 +39,9 @@ class MainWidget(QWidget):
         self.items = []
         self.currItem = []
         self.currbbox = BBox()
+        
+        self.nn = Perceptron([784,30,10])
+        self.nn.load("digit_recognition_coefs.txt")
         
     def initPlotCanvas(self):
         self.responseLabel = QLabel("Test")
@@ -91,6 +96,7 @@ class MainWidget(QWidget):
                 painter.setPen(QPen(self.brushColor, self.brushSize, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
                 painter.drawLine(QPoint(self.currItem[i].x() - bbox.minx,self.currItem[i].y() - bbox.miny), QPoint(self.currItem[i-1].x() - bbox.minx,self.currItem[i-1].y() - bbox.miny))
                 painter.end()
+            self.update()
             image = pixmap.toImage()
             bits = image.bits()
             bits.setsize(width*height*4)
@@ -99,11 +105,55 @@ class MainWidget(QWidget):
             for row in arr:
                 maskrow = []
                 for pixel in row:
-                    maskrow.append(0 if pixel[0] > 0 or pixel[1] > 0 or pixel[2] > 0 else 1)
-                bitmask.append(maskrow)                    
-            print(width,height,np.array(bitmask))
-                self.update()
-            pixmap.save(file, "PNG");
+                    maskrow.append(0.0 if pixel[0] > 0 or pixel[1] > 0 or pixel[2] > 0 else 1.0)
+                bitmask.append(maskrow)
+            new_width = 28
+            new_height = 28
+            
+            if width<new_width:
+                delta = new_width - width
+                left = delta // 2
+                new_mask = []
+                for i in range(height):
+                    mask_row = []
+                    for j in range(new_width):
+                        if j < left or j-left >= width:
+                            mask_row.append(0.0)
+                        else:
+                            mask_row.append(bitmask[i][j-left])
+                    new_mask.append(mask_row)
+                bitmask = new_mask
+                width = new_width
+                
+            if height<new_height:
+                delta = new_height - height
+                top = delta // 2
+                new_mask = []
+                for i in range(new_height):
+                    if i < top or i - top >= height:
+                        new_mask.append([0.0]*width)
+                    else:
+                        print(i-top)
+                        new_mask.append(bitmask[i-top])
+                bitmask = new_mask
+                height = new_height
+                
+            while width > 28 or height > 28:
+                dx = 1 if width > 28 else 0
+                dy = 1 if height > 28 else 0
+                
+                new_width = width - dx
+                new_height = height - dy
+                
+                for y in range(new_height):
+                    for x in range(new_width):
+                        sum = bitmask[y][x] + bitmask[y+dy][x] + bitmask[y][x+dx] + bitmask[y+dy][x+dx]
+                        bitmask[y][x] = sum/4
+                width = new_width
+                height = new_height
+                
+            #print(width,height,np.array(bitmask))
+            print(self.nn.predict(np.reshape(np.array(bitmask),(1,784))))
             self.items.append(self.currItem)
             
     def undo(self):
