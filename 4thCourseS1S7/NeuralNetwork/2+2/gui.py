@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
+import numpy as np
 
 import random
 
@@ -81,13 +82,26 @@ class MainWidget(QWidget):
             bbox.maxx += 1
             bbox.maxy += 1
             file = str(len(self.items)) + ".png"
-            pixmap = QPixmap(bbox.maxx - bbox.minx, bbox.maxy - bbox.miny)
+            width = bbox.maxx - bbox.minx
+            height = bbox.maxy - bbox.miny
+            pixmap = QPixmap(width,height)
             pixmap.fill(Qt.white)
             for i in range(1,len(self.currItem)):
                 painter = QPainter(pixmap)
                 painter.setPen(QPen(self.brushColor, self.brushSize, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
                 painter.drawLine(QPoint(self.currItem[i].x() - bbox.minx,self.currItem[i].y() - bbox.miny), QPoint(self.currItem[i-1].x() - bbox.minx,self.currItem[i-1].y() - bbox.miny))
                 painter.end()
+            image = pixmap.toImage()
+            bits = image.bits()
+            bits.setsize(width*height*4)
+            arr = np.frombuffer(bits, np.uint8).reshape((height, width,4))
+            bitmask = []
+            for row in arr:
+                maskrow = []
+                for pixel in row:
+                    maskrow.append(0 if pixel[0] > 0 or pixel[1] > 0 or pixel[2] > 0 else 1)
+                bitmask.append(maskrow)                    
+            print(width,height,np.array(bitmask))
                 self.update()
             pixmap.save(file, "PNG");
             self.items.append(self.currItem)
