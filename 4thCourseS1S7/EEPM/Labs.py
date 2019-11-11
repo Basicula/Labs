@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import random
+
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.integrate import odeint
 
 from PriceDemandsSupplies import *
 
@@ -129,6 +132,87 @@ def Lab4_2():
     
     plt.show()
     
+def Lab4_3():
+    tmax = 10
+    def test1():
+        return 4,2.5,0, 2,1,0
+        
+    def test2():
+        return 4,2.5,0.1, 2,1,0.1
+        
+    def test3():
+        return random.random(),random.random(),random.random(),random.random(),random.random(),random.random()
+    
+    e1, g11, g12, e2, g21, g22 = test2()
+    
+    def fN1(n1,n2):
+        return (e1 - g11 * n2 - g12 * n1) * n1
+    
+    def fN2(n1,n2):
+        return (-e2 + g21 * n1 - g22 * n2) * n2
+        
+    def f(Y,t):
+        return [fN1(Y[0],Y[1]),fN2(Y[0],Y[1])]
+    
+    def recurent(t0,N10,N20):
+        dt = 0.005
+        dN1 = 0
+        dN2 = 0
+        
+        t = np.arange(t0,tmax,dt)
+        N1 = []
+        N2 = []
+        
+        n1 = N10
+        n2 = N20
+        
+        for x in t:
+            n1 += dN1
+            n2 += dN2
+            
+            N1.append(n1)
+            N2.append(n2)
+            
+            dN1 = dt * fN1(n1,n2)
+            dN2 = dt * fN2(n1,n2)
+            
+        return t, np.array(N1), np.array(N2)
+        
+    t0 = 0
+    N10 = 3
+    N20 = 1
+    
+    x,y1,y2 = recurent(t0,N10,N20)
+    
+    fig = plt.figure(constrained_layout=True)
+    gs = fig.add_gridspec(2,1)
+    
+    N1N2T = fig.add_subplot(gs[1,0])
+    N1N2T.plot(x,y1,label="N1",c='g')
+    N1N2T.plot(x,y2,label="N2",c='r')
+    N1N2T.set_xlim(t0,tmax)
+    N1N2T.legend()
+    
+    phase_space = fig.add_subplot(gs[0,0])
+    Y1,Y2 = np.meshgrid(np.linspace(-1,10,50),np.linspace(-1,6,50))
+    u,v = np.zeros(Y1.shape),np.zeros(Y2.shape)
+    
+    for i in range(Y1.shape[0]):
+        for j in range(Y1.shape[1]):
+            u[i, j],v[i,j] = fN1(Y1[i,j],Y2[i,j]), fN2(Y1[i,j],Y2[i,j])
+    
+    phase_space.quiver(Y1,Y2,u,v,width=0.0005)
+    
+    for i in range(10):
+        tspan = np.arange(t0,10*tmax,0.01)
+        y0 = [random.random()*5, random.random()*5]
+        ys = odeint(f, y0, tspan)
+        phase_space.plot(ys[:,0], ys[:,1], '-') # path
+        phase_space.plot([ys[0,0]], [ys[0,1]], 'o') # start
+        phase_space.plot([ys[-1,0]], [ys[-1,1]], 's') # end
+    
+    plt.show()
+
     
 if __name__ == "__main__":
-	Lab4_1()
+	Lab4_3()
