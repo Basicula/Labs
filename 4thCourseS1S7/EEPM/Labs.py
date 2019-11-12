@@ -86,15 +86,16 @@ def Lab4_1():
             dN = (-4*y**3 + 5.6*y**2 - 1.6*y)/(1+y)
             dN *= dt
         return xs,np.array(ys)
+    
+    for n in np.arange(0,2,0.01):
+        t0 = 0
+        N0 = n
         
-    t0 = 0
-    N0 = 2
-    
-    x,y = recurent(t0,N0)
-    
-    plt.plot(x,y)
-    plt.xlabel("t")
-    plt.ylabel("N")
+        x,y = recurent(t0,N0)
+        
+        plt.plot(x,y)
+        plt.xlabel("t")
+        plt.ylabel("N")
     
     plt.show()
     
@@ -215,4 +216,4 @@ def Lab4_3():
 
     
 if __name__ == "__main__":
-	Lab4_3()
+	Lab4_1()

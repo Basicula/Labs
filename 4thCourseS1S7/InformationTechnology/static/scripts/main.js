@@ -13,7 +13,7 @@ const MERGE_TABLES_POPUP = $('#merge-tables-popup');
 const CONTENT = $('.content');
 const ENTERED_NAME = $('input[name=name]');
 const ENTERED_TABLE_NAME = $('input[name=table-name]');
-const SCHEME = $('#scheme');
+const COLUMNS = $('#columns');
 let CURRENT_DB_INDEX = -1;
 let CURRENT_TABLE_INDEX = -1;
 let MONGO = false;
@@ -284,7 +284,7 @@ function create_table(table_name, types, headers) {
 function create_table_click() {
     let types = [];
     let names = [];
-    let columns = SCHEME.find('.column');
+    let columns = COLUMNS.find('.column');
     for (let i = 0; i < columns.length; i++) {
         const o = $(columns[i]);
         let type = o.find('.type').text();
@@ -353,7 +353,7 @@ function show_table_popup() {
     CONTENT.css('opacity', 0.3);
     CREATE_TABLE_POPUP.show();
     ENTERED_TABLE_NAME.focus();
-    SCHEME.html('');
+    COLUMNS.html('');
     add_column('Int', 'id');
 }
 
@@ -365,7 +365,6 @@ function hide_table_popup() {
 function show_merge_popup() {
     CONTENT.css('opacity', 0.3);
     MERGE_TABLES_POPUP.show();
-    SCHEME.html('');
 
     const tables_to_merge = $('#tables-to-merge');
     tables_to_merge.html('');
@@ -427,7 +426,7 @@ function add_column(type, name = 'column') {
     column.append($('<div class="type">' + type + '</div>'));
     column.append($('<input type="text" value="' + name + '">'));
     column.append($('<div class="remove" onclick="$(this.parentElement).remove()">X</div>'));
-    SCHEME.append(column);
+    COLUMNS.append(column);
 }
 
 update_databases();

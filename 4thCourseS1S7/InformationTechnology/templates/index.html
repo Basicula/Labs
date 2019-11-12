@@ -55,10 +55,10 @@
         <div class="btn" onclick="hide_database_popup()">Cancel</div>
     </div>
     <div id="create-table-popup" class="popup" style="display: none">
-        <div style="text-align: center;">Name:</div>
+        <div class="title"/>Name:</div>
         <input type="text" name="table-name"/>
-        <div style="text-align: center;">Scheme:</div>
-        <div id="scheme">
+        <div class="title"/>Columns:</div>
+        <div id="columns">
             <div class="column">
                 <div class="type">Integer</div>
                 <input type="text" name="column_1" value="identifier"/>
@@ -76,10 +76,10 @@
         <div class="btn" onclick="hide_table_popup()">Cancel</div>
     </div>
     <div id="merge-tables-popup" class="popup" style="display: none">
-        <div style="text-align: center;" class="row head">Tables:</div>
+        <div class="title">Tables:</div>
         <div id="tables-to-merge"></div>
-        <div style="text-align: center;"  class="row head">As name:</div>
-        <input type="text" name="as" value="other">
+        <div class="title">As name:</div>
+        <input type="text" name="as">
         <div class="btn" onclick="click_merge()">Merge</div>
         <div class="btn" onclick="hide_merge_popup()">Cancel</div>
     </div>
