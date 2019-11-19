@@ -11,6 +11,17 @@ import numpy as np
 
 import random
 
+def scale_image(image,old_w,old_h,new_w,new_h):
+    res = []
+    x_ratio = old_w/new_w
+    y_ratio = old_h/new_h
+    for y in range(new_h):
+        row = []
+        for x in range(new_w):
+            row.append(image[int(y*y_ratio)][int(x*x_ratio)])
+        res.append(row)
+    return res
+
 class BBox:
     def __init__(self):
         self.minx = float("inf")
@@ -46,8 +57,9 @@ class MainWidget(QWidget):
     def initPlotCanvas(self):
         self.responseLabel = QLabel("Test")
         
-        self.plot = plt.figure()
-        self.plotCanvas = FigureCanvas(self.plot)
+        self.figure = plt.figure()
+        self.plot = self.figure.add_subplot()
+        self.plotCanvas = FigureCanvas(self.figure)
     
     def initPaintingCanvas(self):
         self.drawing = False
@@ -82,10 +94,10 @@ class MainWidget(QWidget):
             bbox = BBox()
             for point in self.currItem:
                 bbox.addPoint(point)
-            bbox.minx -= 1
-            bbox.miny -= 1
-            bbox.maxx += 1
-            bbox.maxy += 1
+            bbox.minx -= 15
+            bbox.miny -= 15
+            bbox.maxx += 15
+            bbox.maxy += 15
             file = str(len(self.items)) + ".png"
             width = bbox.maxx - bbox.minx
             height = bbox.maxy - bbox.miny
@@ -107,53 +119,23 @@ class MainWidget(QWidget):
                 for pixel in row:
                     maskrow.append(0.0 if pixel[0] > 0 or pixel[1] > 0 or pixel[2] > 0 else 1.0)
                 bitmask.append(maskrow)
+            
             new_width = 28
             new_height = 28
             
-            if width<new_width:
-                delta = new_width - width
-                left = delta // 2
-                new_mask = []
-                for i in range(height):
-                    mask_row = []
-                    for j in range(new_width):
-                        if j < left or j-left >= width:
-                            mask_row.append(0.0)
-                        else:
-                            mask_row.append(bitmask[i][j-left])
-                    new_mask.append(mask_row)
-                bitmask = new_mask
-                width = new_width
-                
-            if height<new_height:
-                delta = new_height - height
-                top = delta // 2
-                new_mask = []
-                for i in range(new_height):
-                    if i < top or i - top >= height:
-                        new_mask.append([0.0]*width)
-                    else:
-                        print(i-top)
-                        new_mask.append(bitmask[i-top])
-                bitmask = new_mask
-                height = new_height
-                
-            while width > 28 or height > 28:
-                dx = 1 if width > 28 else 0
-                dy = 1 if height > 28 else 0
-                
-                new_width = width - dx
-                new_height = height - dy
-                
-                for y in range(new_height):
-                    for x in range(new_width):
-                        sum = bitmask[y][x] + bitmask[y+dy][x] + bitmask[y][x+dx] + bitmask[y+dy][x+dx]
-                        bitmask[y][x] = sum/4
-                width = new_width
-                height = new_height
-                
-            #print(width,height,np.array(bitmask))
-            print(self.nn.predict(np.reshape(np.array(bitmask),(1,784))))
+            bitmask = scale_image(bitmask,width,height,new_width,new_height)
+            self.figure.canvas.flush_events()
+            self.plot.imshow(bitmask,cmap='gray')
+            self.figure.canvas.draw()
+            #print(np.array(bitmask))
+            prediction = self.nn.predict(np.reshape(np.array(bitmask),(1,784)))
+            res = -1
+            mx = 0
+            for j,pred in enumerate(prediction[0]):
+                if pred>mx:
+                    mx = pred
+                    res = j
+            print(res)
             self.items.append(self.currItem)
             
     def undo(self):

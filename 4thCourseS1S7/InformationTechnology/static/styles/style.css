@@ -1,0 +1,316 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    color: white;
+    background-color: #1A1A1D;
+}
+
+.content {
+    width: 75%;
+    margin: 100px auto 50px auto;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.container.databases {
+    position: absolute;
+    top: 0;
+    left: -170px;
+    width: 160px;
+    border: 2px solid #C3073F;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.container {
+    width: 100%;
+    border: 2px solid #C3073F;
+    padding: 5px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+.create {
+    background-color: #006600;
+    color: white;
+    padding: 2px 5px;
+}
+
+.create:hover {
+    background: linear-gradient( #006600, #00ff00 );
+    color: black;
+    cursor: pointer;
+    user-select: none;
+}
+
+.create:active {
+    background-color: #00FF00;
+    color: black;
+}
+
+.title {
+    text-align: center;
+    padding: 2px 5px;
+    margin-bottom: 2px;
+}
+
+.row {
+    padding: 2px 5px;
+    margin-bottom: 2px;
+}
+
+.row.head {
+    text-align: center;
+    border-bottom: 1px solid #C3073F;
+    margin-bottom: 5%;
+}
+
+.row:hover {
+    cursor: pointer;
+    user-select: none;
+    background-color: #950740;
+    color: black;
+}
+
+.row.head:hover {
+    cursor: default;
+    background-color: transparent;
+    color: white;
+}
+
+.row.active {
+    background-color: #006600;
+    color: black;
+}
+
+li.row .delete {
+    float: right;
+    color: white;
+    display: block;
+}
+
+li.row .delete:hover {
+    color: #d24248;
+}
+
+.container.tables {
+    min-height: 0;
+    box-sizing: border-box;
+    display: inline-block;
+}
+
+.container.tables a {
+    float: left;
+    padding: 2px 10px;
+    display: block;
+    margin-right: 2px;
+}
+
+.container.tables a:hover, .container.tables a.active {
+    cursor: pointer;
+    user-select: none;
+    background-color: #950740;
+    color: black;
+}
+
+.container.tables .create {
+    float: right;
+}
+
+table {
+    width: 100%;
+}
+
+tr {
+    border-bottom: 1px solid #C3073F;
+}
+
+tr:last-child {
+    border-bottom: 0;
+}
+
+td {
+    border-right: 1px solid #C3073F;
+    padding: 2px 4px;
+    position: relative;
+}
+
+td:last-child {
+    border-right: 0;
+}
+
+tr:first-child {
+    background-color: #6F2232;
+    border-bottom: 0;
+}
+
+tr:first-child td {
+    padding: 2px 4px;
+}
+
+td.delete {
+    width: 10px;
+}
+
+td:hover {
+    cursor: pointer;
+    background-color: #950740;
+}
+
+td.delete:hover {
+    color: #d24248;
+    background-color: transparent;
+}
+
+.popup {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    width: 200px;
+    margin-left: -100px;
+    border: 1px solid #C3073F;
+    padding: 5px;
+    box-sizing: border-box;
+    background-color: #222629;
+}
+
+.popup input[type=text] {
+    width: 100%;
+}
+
+.popup input[type=checkbox] {
+    float: right;
+}
+
+.popup > .btn {
+    width: 100%;
+    text-align: center;
+    background-color: #006600;
+    color:white;
+    margin: 4px 0 0 0;
+    padding: 3px;
+    box-sizing: border-box;
+}
+
+.popup > .btn:hover {
+    background-color: #00FF00;
+    color: black;
+    cursor: pointer;
+    user-select: none;
+}
+
+.types {
+    display: inline-block;
+    width: 100%;
+}
+
+.types > div {
+    width: 20%;
+    float: left;
+    text-align: center;
+    padding: 3px;
+    box-sizing: border-box;
+}
+
+.types > div:hover {
+    background-color: #474B4F;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+}
+
+.column > input {
+    width: 25%;
+}
+
+.column > .type {
+    width: 20%;
+    float: left;
+}
+
+.column > .remove {
+    float: right;
+    width: 10%;
+}
+
+.column {
+    line-height: 22px;
+    display: inline-block;
+}
+
+.column > .remove:hover {
+    color: #d24248;
+    cursor: pointer;
+    user-select: none;
+}
+
+.operations {
+    position: absolute;
+    top: 0;
+    right: -170px;
+    width: 160px;
+    border: 1px solid #C3073F;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+
+
+#log {
+    font-size: 0.8em;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    padding: 8px;
+    box-sizing: border-box;
+    z-index: -1;
+}
+
+.status {
+}
+
+.status.ok {
+    color: #37a243;
+}
+
+.status.error {
+    color: #a23238;
+}
+
+td:hover .popup-image {
+    visibility: visible;
+}
+
+.popup-image {
+    visibility: hidden;
+    position: absolute;
+    left: 4px;
+    top: 26px;
+    z-index: 2;
+    max-width: 180px;
+    max-height: 180px;
+    border: 1px solid #C3073F;
+}
+.dropdown-content {
+    visibility: hidden;
+    position: absolute;
+    display: inline-block;
+    background-color: #222629;
+    left: 0;
+    top: 20px;
+    width: 100%;
+    border: 1px solid #C3073F;
+    padding: 0 5px;
+    box-sizing: border-box;
+}
+.dropdown-head:hover .dropdown-content, .dropdown-content:hover {
+    visibility: visible;
+}
+
+.dropdown-content div {
+    width: 100%;
+}
+.dropdown-content div:hover, .dropdown-content div.active {
+    background-color: #474B4F;
+    color: #FF0000;
+    cursor: pointer;
+}

@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from keras.datasets import mnist
 import random
 import json
+from threading import Thread
+import time
 
 def sigmoid(x):
     return 1/(1+np.exp(-x))
@@ -27,23 +29,52 @@ class Perceptron:
         
     """ SGD - stochastic gradient descent """
     def trainSGD(self,training_data,epochs,mini_batch_size,learning_rate):
+        print("Training starts")
         for i in range(epochs):
+            start = time.time()
             random.shuffle(training_data)
-            k = random.randint(0,len(training_data)-mini_batch_size)
-            mini_batch = training_data[k:k+mini_batch_size]
-            db_sum = [np.zeros(b.shape) for b in self.biases]
-            dw_sum = [np.zeros(w.shape) for w in self.weights]
-            error_sum = 0
-            for x,y in mini_batch:
-                db,dw,error = self.backpropagation(x,y)
-                error_sum+=error
-                for j in range(len(db_sum)):
-                    db_sum[j] += db[j]
-                    dw_sum[j] += dw[j]
-            if i%10==0:
-                self.errors.append(error_sum/mini_batch_size)
-            self.weights = [w+dw/mini_batch_size for w,dw in zip(self.weights,dw_sum)]
-            self.biases = [b+db/mini_batch_size for b,db in zip(self.biases,db_sum)]
+            self.error = 0
+            threads = []
+            for k in range(0,len(training_data),mini_batch_size):
+                mini_batch = training_data[k:min(k+mini_batch_size,len(training_data)-1)]
+                
+                threads.append(Thread(target=self.update_coefs,args=(mini_batch,)))
+                threads[-1].start()
+            
+            for j in range(len(threads)):
+                threads[j].join()
+            
+            self.errors.append(self.error)
+            finish = time.time()
+            dt = (finish - start)*1000
+            message = "Progress:" + str(100*(i+1)/epochs) + "% in "
+            for d,t in zip([1000,60,60,60],["ms","s","m","h"]):
+                if dt < d:
+                    message += str(dt) + t
+                    break
+                else:
+                    dt /= d
+            print(message)
+                
+    def update_coefs(self, batch):
+        db_sum, dw_sum, err = self.update_batch(batch)
+        self.error += err
+        
+        self.weights = [w+dw/len(batch) for w,dw in zip(self.weights,dw_sum)]
+        self.biases = [b+db/len(batch) for b,db in zip(self.biases,db_sum)]
+                
+    def update_batch(self,batch):
+        db_sum = [np.zeros(b.shape) for b in self.biases]
+        dw_sum = [np.zeros(w.shape) for w in self.weights]
+        error = 0
+        for x,y in batch:
+            db,dw,err = self.backpropagation(x,y)
+            error+=err
+            for j in range(len(db_sum)):
+                db_sum[j] += db[j]
+                dw_sum[j] += dw[j]
+        
+        return db_sum, dw_sum, error           
                 
     def backpropagation(self,x,y):
         db = [np.zeros(b.shape) for b in self.biases]
@@ -103,19 +134,27 @@ def test():
 if __name__=="__main__":
     p = Perceptron([784,30,10],"digit_recognition")
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    n = len(x_train)
     x_train = [np.reshape(x,(1,784))/255 for x in x_train]
+    for i in range(len(x_train)):
+        new_x = [0.0]*784
+        for j in range(len(x_train[i][0])):
+            new_x[j] = 1.0 if x_train[i][0][j] > 0.0 else 0.0
+        x_train.append(np.reshape(np.array(new_x),(1,784)))
+        y_train = np.append(y_train,[y_train[i]])
     y_train_vectors = []
     for y in y_train:
         vec = [0.0]*10
         vec[y] = 1.0
         y_train_vectors.append(np.reshape(np.array(vec),(1,10)))
-    #p.trainSGD(list(zip(x_train,y_train_vectors)),10000,10,0.1)
-    p.load("digit_recognition_coefs.txt")
-    plt.plot(range(len(p.errors)-1),p.errors[1:])
+    p.trainSGD(list(zip(x_train,y_train_vectors)),100,32,0.01)
+    p.save()
+    #p.load("digit_recognition_coefs.txt")
+    plt.plot(range(len(p.errors)),p.errors[:])
     fig = plt.figure(constrained_layout=True)
     gs = fig.add_gridspec(3,3)
     for i in range(9):
-        k = random.randint(0,len(y_train))
+        k = random.randint(n,len(y_train))
         x = x_train[k]
         y = y_train[k]
         plot = fig.add_subplot(gs[i//3,i%3])
