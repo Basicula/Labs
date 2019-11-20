@@ -213,7 +213,84 @@ def Lab4_3():
         phase_space.plot([ys[-1,0]], [ys[-1,1]], 's') # end
     
     plt.show()
+    
+def Lab5():
+    E1 = np.identity(1)
+    E2 = np.identity(2)
+
+    A11 = np.array([
+    [0.2, 0.7],
+    [0.4, 0.1]])
+    A12 = np.array([
+    [0.4],
+    [0.1]])
+    A21 = np.array([
+    [0.3, 0.4]])
+    A22 = np.array([[0.4]])
+    
+    B1 = np.array([
+    [0.5, 0.6],
+    [0.2, 0.2]])
+    B2 = np.array([
+    [0.1],
+    [0.2]])
+    
+    c1 = lambda t : np.array([[350],[150]]) * np.exp(0.01*t)
+    c2 = lambda t : 40
+    dc2dt = 0
+    
+    invA22 = np.linalg.inv(E1 - A22)
+    
+    A1 = A11 + A12.dot(invA22).dot(A21)
+    B = B1 + B2.dot(invA22).dot(A21)
+    c = lambda t : c1(t) - A12.dot(invA22).dot(c2(t)) - B2.dot(invA22).dot(dc2dt)
+    
+    invB = np.linalg.inv(B)
+    
+    dx1dt = lambda x1,t : invB.dot((E2-A1).dot(x1) - c(t))
+    
+    t0 = 0
+    x10 = np.array([[550.0],[300.0]])
+    
+    dt = 0.0001
+    
+    t = np.arange(t0,0.1,dt)
+    x = x10
+    x1 = []
+    x2 = []
+    for i in t:
+        x1.append(x.copy())
+        x2.append(invA22.dot(A21.dot(x) - c2(i)))
+        dx = dx1dt(x,i).dot(dt)
+        x+=dx
+    
+    x1 = np.array(x1)
+    x2 = np.array(x2)
+    
+    fig = plt.figure(constrained_layout=True)
+    gs = fig.add_gridspec(2,2)
+    
+    all = fig.add_subplot(gs[0,0])
+    
+    all.plot(t,x1[:,0],label="x1[1]")
+    all.plot(t,x1[:,1],label="x1[2]")
+    all.plot(t,x2[:,0],label="x2")
+    all.legend()
+    
+    X11 = fig.add_subplot(gs[0,1])
+    X11.plot(t,x1[:,0],label="x1[1]")
+    X11.legend()
+    
+    X12 = fig.add_subplot(gs[1,0])
+    X12.plot(t,x1[:,1],label="x1[2]")
+    X12.legend()
+    
+    X2 = fig.add_subplot(gs[1,1])
+    X2.plot(t,x2[:,0],label="x2")
+    X2.legend()
+    
+    plt.show()
 
     
 if __name__ == "__main__":
-	Lab4_1()
+    Lab5()
