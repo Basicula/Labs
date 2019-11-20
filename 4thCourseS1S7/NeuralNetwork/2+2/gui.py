@@ -8,7 +8,7 @@ from neuralnetwork import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import numpy as np
-
+from keras.models import load_model
 import random
 
 def scale_image(image,old_w,old_h,new_w,new_h):
@@ -51,11 +51,18 @@ class MainWidget(QWidget):
         self.currItem = []
         self.currbbox = BBox()
         
-        self.nn = Perceptron([784,30,10])
-        self.nn.load("digit_recognition_coefs.txt")
+        self.perceptron = Perceptron([784,30,10])
+        self.perceptron.load("digit_recognition_coefs.txt")
+        
+        self.convolution = load_model("digit_recognition.nn")
         
     def initPlotCanvas(self):
-        self.responseLabel = QLabel("Test")
+        self.perceptronLabel = QLabel("")
+        self.perceptronLabel.setAlignment(Qt.AlignVCenter)
+        self.perceptronLabel.setStyleSheet("font: 25pt Comic Sans MS")
+        self.convolutionLabel = QLabel("")
+        self.convolutionLabel.setAlignment(Qt.AlignVCenter)
+        self.convolutionLabel.setStyleSheet("font: 25pt Comic Sans MS")
         
         self.figure = plt.figure()
         self.plot = self.figure.add_subplot()
@@ -128,14 +135,11 @@ class MainWidget(QWidget):
             self.plot.imshow(bitmask,cmap='gray')
             self.figure.canvas.draw()
             #print(np.array(bitmask))
-            prediction = self.nn.predict(np.reshape(np.array(bitmask),(1,784)))
-            res = -1
-            mx = 0
-            for j,pred in enumerate(prediction[0]):
-                if pred>mx:
-                    mx = pred
-                    res = j
-            print(res)
+            input = np.reshape(np.array(bitmask),(1,784))
+            perceptron_prediction = self.perceptron.predict(input)
+            convolution_prediction = self.convolution.predict(np.reshape(bitmask,(1,28,28,1)))
+            self.perceptronLabel.setText("Perceptron prediction: "+str(np.argmax(perceptron_prediction)))
+            self.convolutionLabel.setText("Convolution prediction: "+str(np.argmax(convolution_prediction)))
             self.items.append(self.currItem)
             
     def undo(self):
@@ -194,7 +198,10 @@ class MainWidget(QWidget):
         self.mainLayout.addWidget(self.paintingCanvas)
         
         self.plotCanvasLayout = QVBoxLayout()
-        self.plotCanvasLayout.addWidget(self.responseLabel)
+        self.responseLayout = QVBoxLayout()
+        self.responseLayout.addWidget(self.perceptronLabel)
+        self.responseLayout.addWidget(self.convolutionLabel)
+        self.plotCanvasLayout.addLayout(self.responseLayout)
         self.plotCanvasLayout.addWidget(self.plotCanvas)
         self.mainLayout.addLayout(self.plotCanvasLayout)
         

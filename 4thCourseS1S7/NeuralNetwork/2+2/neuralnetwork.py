@@ -132,40 +132,42 @@ def test():
     plt.show()
         
 if __name__=="__main__":
-    p = Perceptron([784,30,10],"digit_recognition")
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    n = len(x_train)
-    x_train = [np.reshape(x,(1,784))/255 for x in x_train]
-    for i in range(len(x_train)):
-        new_x = [0.0]*784
-        for j in range(len(x_train[i][0])):
-            new_x[j] = 1.0 if x_train[i][0][j] > 0.0 else 0.0
-        x_train.append(np.reshape(np.array(new_x),(1,784)))
-        y_train = np.append(y_train,[y_train[i]])
-    y_train_vectors = []
-    for y in y_train:
-        vec = [0.0]*10
-        vec[y] = 1.0
-        y_train_vectors.append(np.reshape(np.array(vec),(1,10)))
-    p.trainSGD(list(zip(x_train,y_train_vectors)),100,32,0.01)
-    p.save()
-    #p.load("digit_recognition_coefs.txt")
-    plt.plot(range(len(p.errors)),p.errors[:])
-    fig = plt.figure(constrained_layout=True)
-    gs = fig.add_gridspec(3,3)
-    for i in range(9):
-        k = random.randint(n,len(y_train))
-        x = x_train[k]
-        y = y_train[k]
-        plot = fig.add_subplot(gs[i//3,i%3])
-        plot.imshow(np.reshape(x,(28,28)),cmap='gray')
-        prediction = p.predict(x)
-        res = 0
-        mx = 0
-        for j,pred in enumerate(prediction[0]):
-            if pred>mx:
-                mx = pred
-                res = j
-        plot.set_title("Predicted:"+str(res)+" Real:"+str(y))
-        
-    plt.show()
+    from google.colab import files
+    files.download('digit_recognition.nn')
+    #p = Perceptron([784,30,10],"digit_recognition")
+    #(x_train, y_train), (x_test, y_test) = mnist.load_data()
+    #n = len(x_train)
+    #x_train = [np.reshape(x,(1,784))/255 for x in x_train]
+    #for i in range(len(x_train)):
+    #    new_x = [0.0]*784
+    #    for j in range(len(x_train[i][0])):
+    #        new_x[j] = 1.0 if x_train[i][0][j] > 0.0 else 0.0
+    #    x_train.append(np.reshape(np.array(new_x),(1,784)))
+    #    y_train = np.append(y_train,[y_train[i]])
+    #y_train_vectors = []
+    #for y in y_train:
+    #    vec = [0.0]*10
+    #    vec[y] = 1.0
+    #    y_train_vectors.append(np.reshape(np.array(vec),(1,10)))
+    #p.trainSGD(list(zip(x_train,y_train_vectors)),100,32,0.01)
+    #p.save()
+    ##p.load("digit_recognition_coefs.txt")
+    #plt.plot(range(len(p.errors)),p.errors[:])
+    #fig = plt.figure(constrained_layout=True)
+    #gs = fig.add_gridspec(3,3)
+    #for i in range(9):
+    #    k = random.randint(n,len(y_train))
+    #    x = x_train[k]
+    #    y = y_train[k]
+    #    plot = fig.add_subplot(gs[i//3,i%3])
+    #    plot.imshow(np.reshape(x,(28,28)),cmap='gray')
+    #    prediction = p.predict(x)
+    #    res = 0
+    #    mx = 0
+    #    for j,pred in enumerate(prediction[0]):
+    #        if pred>mx:
+    #            mx = pred
+    #            res = j
+    #    plot.set_title("Predicted:"+str(res)+" Real:"+str(y))
+    #    
+    #plt.show()
