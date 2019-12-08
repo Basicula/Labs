@@ -1,7 +1,0 @@
-Pyro4
-netifaces
-py-cpuinfo
-flask
-requests
-numpy
-Pillow
