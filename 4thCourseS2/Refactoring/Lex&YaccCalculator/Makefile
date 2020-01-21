@@ -1,4 +1,5 @@
 YFLAGS = -d
+CXXFLAGS  = -Wall -Werror
 
 calculator: calculator.o lex.o
 
