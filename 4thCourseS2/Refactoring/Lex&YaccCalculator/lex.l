@@ -9,7 +9,7 @@ letter          [a-zA-Z]
 digit           [0-9]
 digits          {digit}+
 intNumber       [1-9]{digits}
-rationalNumber  {intNumber}?\.{digits}
+rationalNumber  ([1-9][0-9]+|[0-9])?\.[0-9]+ 
 
 %%
 [a-z] {
@@ -17,8 +17,13 @@ rationalNumber  {intNumber}?\.{digits}
   return VARIABLE;
   }
 
+{rationalNumber} {
+  yylval.rational_value = strtod(yytext, NULL);
+  return RATIONAL;
+  }
+  
 {intNumber}|{digit} {
-  yylval.iValue = atoi(yytext);
+  yylval.int_value = strtol(yytext, NULL, 10);
   return INTEGER;
   }
 
