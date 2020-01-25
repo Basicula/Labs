@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/reset.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/style.css')}}">
+    <script src="{{url_for('static', filename='scripts/jquery.min.js')}}"></script>
+</head>
+<body>
+    <div class="content">
+        <div class="container databases">
+            <div class="row head">Databases</div>
+            <ul id="databases">
+                <li class="row">Database1</li>
+                <li class="row">Database2</li>
+            </ul>
+            <br>
+            <div class="row head">Mongo Databases</div>
+            <ul id="mongo-databases">
+                <li class="row">Mongo DB</li>
+            </ul>
+            <div class="create" onclick="show_database_popup()">Create</div>
+        </div>
+        <div class="operations">
+            <div class="row head">Operations</div>
+            <ul>
+                <li class="row" onclick="delete_table()">Delete table</li>
+                <li class="row" onclick="show_merge_popup()">Merge tables</li>
+            </ul>
+        </div>
+        <div class="container tables">
+            <div id="tables">
+                <a>Table1</a>
+                <a>Table2</a>
+                <a>Table3</a>
+            </div>
+            <div class="create" onclick="create_table()">Create</div>
+        </div>
+        <div class="container">
+            <table id="db-table"></table>
+        </div>
+    </div>
+
+    <div id="log"></div>
+    <div id="create-database-popup" class="popup" style="display: none">
+        <div class="row head">
+            <label for="mongodb">Create with Mongo</label>
+            <input type="checkbox" id="mongodb"/>
+        </div>
+        <div style="text-align: center;">Name:</div>
+        <input type="text" name="name"/>
+        <div class="btn" onclick="create_click()">Create</div>
+        <div class="btn" onclick="hide_database_popup()">Cancel</div>
+    </div>
+    <div id="create-table-popup" class="popup" style="display: none">
+        <div class="title"/>Name:</div>
+        <input type="text" name="table-name"/>
+        <div class="title"/>Columns:</div>
+        <div id="columns">
+            <div class="column">
+                <div class="type">Integer</div>
+                <input type="text" name="column_1" value="identifier"/>
+                <div class="remove">x</div>
+            </div>
+        </div>
+        <div class="types">
+            <div onclick="add_column('Int')">Int</div>
+            <div onclick="add_column('Real')">Real</div>
+            <div onclick="add_column('Str')">Str</div>
+            <div onclick="add_column('Chr')">Char</div>
+            <div onclick="add_column('Img')">Img</div>
+        </div>
+        <div class="btn" onclick="create_table_click()">Create</div>
+        <div class="btn" onclick="hide_table_popup()">Cancel</div>
+    </div>
+    <div id="merge-tables-popup" class="popup" style="display: none">
+        <div class="title">Tables:</div>
+        <div id="tables-to-merge"></div>
+        <div class="title">As name:</div>
+        <input type="text" name="as">
+        <div class="btn" onclick="click_merge()">Merge</div>
+        <div class="btn" onclick="hide_merge_popup()">Cancel</div>
+    </div>
+
+    <script src="{{url_for('static', filename='scripts/main.js')}}"></script>
+</body>
+</html>
