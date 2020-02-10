@@ -22,7 +22,7 @@ class Chatty:
     def add_dialogue(self, dialogue, category = "undefined"):
         file_path = os.getcwd() + '/' + self.train_data_path + category + '.yml'
         data = self.read_to_dict(file_path) if os.path.exists(file_path) else self.create_new_category(category)
-        self.smart_add(data, dialogue)
+        self.add(data, dialogue)
         self.write(data, file_path)
                     
     def create_new_category(self, category):
@@ -69,9 +69,12 @@ class Chatty:
         
     def add(self, data, dialogue):
         conversations = data['conversations']
-        for conv in conversations:
-            if dialogue != conv:
-                conversations.append(dialogue)
+        if len(conversations) != 0:
+            for conv in conversations:
+                if dialogue != conv:
+                    conversations.append(dialogue)
+        else:
+            conversations.append(dialogue)
     
     def is_need_to_train(self):
         db_path = os.getcwd() + '/db.sqlite3'
