@@ -34,9 +34,20 @@ def random_color_hex():
 
 def common_test(test_cnt):
     fig = plt.figure(constrained_layout=True)
-    gs = fig.add_gridspec(1,2)
-    main = fig.add_subplot(gs[0,0])
-    history = fig.add_subplot(gs[0,1])
+    gs = fig.add_gridspec(2,2)
+    
+    data_distr = fig.add_subplot(gs[0,0])
+    data_distr.title.set_text("Data distribution")
+    
+    predictions = fig.add_subplot(gs[0,1])
+    predictions.title.set_text("Predictions")
+    
+    main = fig.add_subplot(gs[1,0])
+    main.title.set_text("All together")
+    
+    history = fig.add_subplot(gs[1,1])
+    history.title.set_text("Error")
+    
     avarage_history = None
     for test in range(test_cnt):
         k = np.random.rand() * 5 - 3
@@ -50,12 +61,17 @@ def common_test(test_cnt):
         else:
             avarage_history += lr.history
         y_predict = lr.predict(x)
-        main.scatter(x, y, label = 'data', c = random_color_hex())
-        main.plot(x, y_predict, label = 'prediction', c = random_color_hex())
+        data_color = random_color_hex()
+        main.scatter(x, y, label = 'data', c = data_color)
+        data_distr.scatter(x, y, c = data_color)
+        prediction_color = random_color_hex()
+        main.plot(x, y_predict, label = 'prediction', c = prediction_color)
+        predictions.plot(x, y_predict, c = prediction_color)
+    
     main.legend()
     avarage_history /= test_cnt
     history.plot(np.arange(0,len(avarage_history)), avarage_history)
     plt.show()
 
 if __name__ == "__main__":
-    common_test(10)
+    common_test(5)

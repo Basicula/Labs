@@ -23,7 +23,7 @@ class LogisticRegression(Classifier):
         # dL/dW = dL/dy* * dy*/dz * dz/dW = (y* - y) * dz/dW = (y* - y) * x
         # dL/db = dL/dy* * dy*/dz * dz/db = (y* - y) * dz/db = y* - y
         for iter in range(self.iterations):
-            predicted = self.predict(input)
+            predicted = self.predict(input, True)
             diff = predicted - output
             delta_w = input.T.dot(diff) / input.shape[0]
             delta_b = np.mean(diff)
@@ -31,17 +31,23 @@ class LogisticRegression(Classifier):
             self.bias -= self.learning_rate * delta_b
             self.history[iter] = self.error(input, output)
             
-    def predict(self,x):
-        return sigmoid(x.dot(self.weights) + self.bias)
+    def predict(self, x, smooth = False):
+        res = sigmoid(x.dot(self.weights) + self.bias)
+        if smooth:
+            return res
+        else:
+            temp = np.round(res)
+            return temp
         
     #L(y*,y) = -y * log(y*) - (1 - y) * log(1 - y*)
     def error(self, input, output):
-        predicted = self.predict(input)
+        predicted = self.predict(input, True)
         return np.sum(-output * np.log(predicted) - (1 - output) * np.log(1 - predicted)) / input.shape[0]
         
-def andreab330_test():
+def test():
     fig = plt.figure(constrained_layout=True)
     gs = fig.add_gridspec(2,2)
+    
     def generate_data(cluster_size, dims):
         x = np.zeros((cluster_size * 2,dims))
         y = np.zeros((cluster_size * 2, 1))
@@ -55,75 +61,38 @@ def andreab330_test():
                 index+=1
         return x,y
     
-    data, labels = generate_data(500,2)
+    data, labels = generate_data(1000,2)
 
     lg = LogisticRegression(iterations = 5000)
     lg.fit(data, labels)    
     
-    data_distrib = fig.add_subplot(gs[0,:])
+    data_distrib = fig.add_subplot(gs[0,0])
+    data_distrib.title.set_text("Data distribution")
     data_distrib.scatter(*data.T, c = labels.ravel())
     data_distrib.axis((0,1,0,1))
 
     N = 5000
     xs = np.random.rand(N,2)
     ys = lg.predict(xs)
-    colors = (1/(1+np.exp(40*(0.5-ys)))).ravel()
     res = fig.add_subplot(gs[1,0])
-    res.scatter(*xs.T, c = colors)
+    res.title.set_text("Predictions")
+    res.scatter(*xs.T, c = ys.ravel())
     res.axis((0,1,0,1))
     
-    error = fig.add_subplot(gs[1,1])
+    ys = lg.predict(xs, True)
+    smooth = fig.add_subplot(gs[1,1])
+    smooth.title.set_text("Smooth predictions")
+    smooth.scatter(*xs.T, c = ys.ravel())
+    smooth.axis((0,1,0,1))
+    
+    error = fig.add_subplot(gs[0,1])
+    error.title.set_text("Error")
     x = np.arange(len(lg.history))
     y = lg.history
     error.plot(x,y)
     
     plt.show()
     
-def circle_test():
-    fig = plt.figure(constrained_layout=True)
-    gs = fig.add_gridspec(2,2)
-    
-    def generate_data(cnt):
-        x = np.zeros((cnt, 2))
-        y = np.zeros((cnt, 1))
-        center = 0.5 + (np.random.rand(2) * 0.4 - 0.2)
-        radius = np.random.rand()
-        
-        print(center,radius)
-        
-        for i in range(cnt):
-            point = np.random.rand(2)
-            x[i] = point
-            if np.linalg.norm(point - center) <= radius**2:
-                y[i] = 0
-            else:
-                y[i] = 1
-        return x, y
-    
-    data, labels = generate_data(500)
-
-    lg = LogisticRegression(iterations = 5000)
-    lg.fit(data, labels)    
-    
-    data_distrib = fig.add_subplot(gs[0,:])
-    data_distrib.scatter(*data.T, c = labels.ravel())
-    data_distrib.axis((0,1,0,1))
-
-    N = 5000
-    xs = np.random.rand(N,2)
-    ys = lg.predict(xs)
-    colors = (1/(1+np.exp(40*(0.5-ys)))).ravel()
-    res = fig.add_subplot(gs[1,0])
-    res.scatter(*xs.T, c = colors)
-    res.axis((0,1,0,1))
-    
-    error = fig.add_subplot(gs[1,1])
-    x = np.arange(len(lg.history))
-    y = lg.history
-    error.plot(x,y)
-    
-    plt.show()
 
 if __name__ == "__main__":
-    andreab330_test()
-    circle_test()
+    test()
