@@ -48,8 +48,8 @@ def test():
             y[i] = np.random.randint(0,clusters_number)
         return x,y
         
-    data, labels = generate_group_data(100,5)
-    data, labels = generate_random_data(100,5)
+    data, labels = generate_group_data(100,2)
+    #data, labels = generate_random_data(100,5)
     
     fig = plt.figure(constrained_layout=True)
     gs = fig.add_gridspec(2,4)
@@ -62,7 +62,9 @@ def test():
     knn = KNNClassifier()
     knn.fit(data, labels)
     
-    N = 2000
+    xx, yy = np.meshgrid(np.arange(-0.1, 1.1, 0.1), np.arange(-0.1, 1.1, 0.1))
+    
+    N = 1000
     
     xs = np.random.rand(N,2)
     for i in range(3):
@@ -75,7 +77,13 @@ def test():
             
         res = fig.add_subplot(gs[0,i+1])
         res.title.set_text("Predictions with k = " + str(k))
+        Z = []
+        for z in np.c_[xx.ravel(), yy.ravel()]:
+            Z.append(knn.predict(z, k))
+        Z = np.array(Z).reshape(xx.shape)
+        res.contourf(xx, yy, Z, cmap=plt.cm.RdBu, alpha=.8)
         res.scatter(*xs.T, c = cs)
+        res.axis((0,1,0,1))
         
         sk_knn =  KNeighborsClassifier(n_neighbors=k)
         sk_knn.fit(data, labels)
@@ -83,7 +91,11 @@ def test():
         sk_res = fig.add_subplot(gs[1,i+1])
         sk_res.title.set_text("sklearn predictions with k = " + str(k))
         cs = sk_knn.predict(xs)
+        Z = sk_knn.predict(np.c_[xx.ravel(), yy.ravel()])
+        Z = Z.reshape(xx.shape)
+        sk_res.contourf(xx, yy, Z, cmap=plt.cm.RdBu, alpha=.8)
         sk_res.scatter(*xs.T, c = cs)
+        sk_res.axis((0,1,0,1))
         
     plt.show()
 
