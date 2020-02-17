@@ -1,6 +1,7 @@
 from classifier import Classifier
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression as LR
 
 # fits to equation y = kx + b
 class LinearRegression(Classifier):
@@ -34,7 +35,7 @@ def random_color_hex():
 
 def common_test(test_cnt):
     fig = plt.figure(constrained_layout=True)
-    gs = fig.add_gridspec(2,2)
+    gs = fig.add_gridspec(2,3)
     
     data_distr = fig.add_subplot(gs[0,0])
     data_distr.title.set_text("Data distribution")
@@ -42,10 +43,16 @@ def common_test(test_cnt):
     predictions = fig.add_subplot(gs[0,1])
     predictions.title.set_text("Predictions")
     
-    main = fig.add_subplot(gs[1,0])
+    sk_predictions = fig.add_subplot(gs[0,2])
+    sk_predictions.title.set_text("sklearn predictions")
+    
+    sk_main = fig.add_subplot(gs[1,2])
+    sk_main.title.set_text("sklearn together")
+    
+    main = fig.add_subplot(gs[1,1])
     main.title.set_text("All together")
     
-    history = fig.add_subplot(gs[1,1])
+    history = fig.add_subplot(gs[1,0])
     history.title.set_text("Error")
     
     avarage_history = None
@@ -54,19 +61,31 @@ def common_test(test_cnt):
         b = np.random.rand() * 5
         x = np.arange(0,10,0.1).reshape(-1,1)
         y = np.vectorize(lambda x: x * k + b + np.random.rand())(x).reshape(-1,1)
+        
+        sk_lr = LR()
+        sk_lr.fit(x,y)
+        
         lr = LinearRegression()
         lr.fit(x,y)
+        
         if avarage_history is None:
             avarage_history = lr.history
         else:
             avarage_history += lr.history
-        y_predict = lr.predict(x)
+            
+        lr_predictions = lr.predict(x)
+        sk_lr_predictions = sk_lr.predict(x)
+        
         data_color = random_color_hex()
         main.scatter(x, y, label = 'data', c = data_color)
+        sk_main.scatter(x, y, label = 'data', c = data_color)
         data_distr.scatter(x, y, c = data_color)
+        
         prediction_color = random_color_hex()
-        main.plot(x, y_predict, label = 'prediction', c = prediction_color)
-        predictions.plot(x, y_predict, c = prediction_color)
+        main.plot(x, lr_predictions, label = 'prediction', c = prediction_color)
+        sk_main.plot(x, sk_lr_predictions, label = 'prediction', c = prediction_color)
+        predictions.plot(x, lr_predictions, c = prediction_color)
+        sk_predictions.plot(x, sk_lr_predictions, c = prediction_color)
     
     main.legend()
     avarage_history /= test_cnt
