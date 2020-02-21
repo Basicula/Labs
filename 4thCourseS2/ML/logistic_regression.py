@@ -1,5 +1,7 @@
 from classifier import Classifier
 from linear_regression import LinearRegression
+from data_generator import DataGenerator
+from utils import add_plot_model_predictions, add_plot_with_error_distrib, add_plot_data_2d
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -46,24 +48,10 @@ class LogisticRegression(Classifier):
       return np.sum(-output * np.log(predicted) - (1 - output) * np.log(1 - predicted)) / input.shape[0]
 
 def test():
-  np.random.seed(69)
   fig = plt.figure(constrained_layout=True)
   gs = fig.add_gridspec(2,3)
-  
-  def generate_data(cluster_size, dims):
-      x = np.zeros((cluster_size * 2,dims))
-      y = np.zeros((cluster_size * 2, 1))
-      index = 0
-      for j in range(2):
-          center = np.random.rand(dims)
-          for i in range(cluster_size):
-              deltas = (np.random.rand(6,dims)-0.5)*0.8
-              x[index] = min(deltas, key = np.linalg.norm)+center
-              y[index][0] = j
-              index+=1
-      return x,y
-  
-  data, labels = generate_data(1000,2)
+
+  data, labels = DataGenerator.blobs_2d(100, 2)
 
   lg = LogisticRegression(learning_rate = 0.1, iterations = 1000)
   lg.fit(data, labels)
@@ -71,43 +59,24 @@ def test():
   sk_lg = LGR()
   sk_lg.fit(data, labels)
   
-  data_distrib = fig.add_subplot(gs[0,0])
-  data_distrib.title.set_text("Data distribution")
-  data_distrib.scatter(*data.T, c = labels.ravel())
-  data_distrib.axis((0,1,0,1))
-
   N = 5000
   xs = np.random.rand(N,2)
-  ys = lg.predict(xs)
-  res = fig.add_subplot(gs[0,1])
-  res.title.set_text("Predictions")
-  res.scatter(*xs.T, c = ys.ravel())
-  res.axis((0,1,0,1))
+  axis = (0,1,0,1)
+  
+  data_distrib = add_plot_data_2d(fig, gs[0,0], data, labels, "Data distribution", axis)
+  
+  res = add_plot_model_predictions(fig, gs[0,1], xs, lg, "Predictions", axis)
+  
+  sk_res = add_plot_model_predictions(fig, gs[0,2], xs, sk_lg, "sklearn predictions", axis)
   
   ys = lg.predict(xs, True)
-  smooth = fig.add_subplot(gs[1,1])
-  smooth.title.set_text("Smooth predictions")
-  smooth.scatter(*xs.T, c = ys.ravel())
-  smooth.axis((0,1,0,1))
-  
-  ys = sk_lg.predict(xs)
-  sk_res = fig.add_subplot(gs[0,2])
-  sk_res.title.set_text("sklearn predictions")
-  sk_res.scatter(*xs.T, c = ys)
-  sk_res.axis((0,1,0,1))
+  smooth = add_plot_data_2d(fig, gs[1,1], xs, ys, "Smooth predictions", axis)
   
   ys = sk_lg.predict_proba(xs)
-  ys = [max(1-y[0],y[1]) for y in ys]
-  sk_smooth = fig.add_subplot(gs[1,2])
-  sk_smooth.title.set_text("sklearn smooth predictions")
-  sk_smooth.scatter(*xs.T, c = ys)
-  sk_smooth.axis((0,1,0,1))
+  ys = np.array([max(1-y[0],y[1]) for y in ys])
+  sk_smooth = add_plot_data_2d(fig, gs[1,2], xs, ys, "sklearn smooth predictions", axis)
   
-  error = fig.add_subplot(gs[1,0])
-  error.title.set_text("Error")
-  x = np.arange(len(lg.history))
-  y = lg.history
-  error.plot(x,y)
+  error = add_plot_with_error_distrib(fig, gs[1,0], lg.history)
   
   plt.show()
   

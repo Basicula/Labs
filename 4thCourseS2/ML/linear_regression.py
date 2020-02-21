@@ -1,4 +1,6 @@
 from classifier import Classifier
+from utils import random_color_hex
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression as LR
@@ -29,9 +31,6 @@ class LinearRegression(Classifier):
     def error(self, input, output):
         predicted = input.dot(self.weights) + self.bias
         return np.sum((predicted - output)**2) / input.shape[0]
-        
-def random_color_hex():
-    return "#" + ("%06x" % np.random.randint(0, 0xffffff))
 
 def common_test(test_cnt):
     fig = plt.figure(constrained_layout=True)
