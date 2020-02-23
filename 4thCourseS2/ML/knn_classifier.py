@@ -33,7 +33,7 @@ class KNNClassifier(Classifier):
         pass
 
 def test(k_cnt):
-    data, labels = DataGenerator.blobs_2d(100,2)
+    data, labels = DataGenerator.blobs_2d(100,5)
     labels = labels.ravel()
     
     fig = plt.figure(constrained_layout=True)
