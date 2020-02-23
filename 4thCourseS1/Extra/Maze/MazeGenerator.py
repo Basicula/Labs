@@ -76,7 +76,7 @@ class Maze:
 				stack.append([next_x,next_y])
 				self.maze[y][x].walls[next_id] = False
 				self.maze[next_y][next_x].walls[(next_id+2)%4] = False
-					
+
 	def drawPath(self):
 		visited = [[False]*self.width for i in range(self.height)]
 		start = self.getRandomPosition()
@@ -101,8 +101,8 @@ class Maze:
 		plt.scatter(stack[:,0],stack[:,1],c=grad(stack.shape[0]))
 		plt.scatter(start[0] + 0.5,start[1] + 0.5,c='g',s=30)
 		plt.scatter(finish[0] + 0.5,finish[1] + 0.5,c='b',s=30)
-					
-					
+
+
 	def draw(self):
 		plt.plot([0,0,self.width,self.width,0],[0,self.height,self.height,0,0],'k')
 		for y in range(0,self.height):
@@ -110,9 +110,9 @@ class Maze:
 				self.maze[y][x].draw()
 		self.drawPath()
 		plt.show()
-		
+
 
 if __name__ == "__main__":
-	maze = Maze(100,100)
+	maze = Maze(50,50)
 	maze.depthFirstSearchGeneration()
 	maze.draw()
