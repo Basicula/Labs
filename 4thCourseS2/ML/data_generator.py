@@ -11,7 +11,7 @@ class DataGenerator:
     @staticmethod
     def blobs_2d(blob_size, blob_cnt):
         x = np.zeros((blob_size * blob_cnt, 2))
-        y = np.zeros((blob_size * blob_cnt, 1))
+        y = np.zeros((blob_size * blob_cnt, 1), dtype=int)
         id = 0
         for i in range(blob_cnt):
             center = np.random.rand(1, 2)
@@ -26,7 +26,7 @@ class DataGenerator:
     @staticmethod
     def curvelike_2d(curve_size, curve_cnt):
         x = np.zeros((curve_size * curve_cnt, 2))
-        y = np.zeros((curve_size * curve_cnt, 1))
+        y = np.zeros((curve_size * curve_cnt, 1), dtype=int)
         id = 0
         for i in range(curve_cnt):
             curve_length = np.random.randint(50, 100)
