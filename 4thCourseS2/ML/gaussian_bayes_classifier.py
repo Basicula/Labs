@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import naive_bayes
 
-from data_generator import DataGenerator
-from utils import add_plot_data_2d, add_plot_model_predictions
+from data_generator import DataGenerator, split_data
+from utils import add_plot_data_2d, add_plot_model_predictions, add_plot_with_roc_curve
 
 class GaussianBayesClassifier:
     def __init__(self):
@@ -45,27 +45,31 @@ class GaussianBayesClassifier:
         pass
 
 def test():
-    data, labels = DataGenerator.blobs_2d(100,3)
+    data, labels = DataGenerator.blobs_2d(1000,3)
     labels = labels.ravel()
+    trainX, trainY, testX, testY = split_data(data, labels)
     
     fig = plt.figure(constrained_layout=True)
-    gs = fig.add_gridspec(2,4)
+    gs = fig.add_gridspec(2,3)
     
     N = 1000
     axis = (0,1,0,1)
     
     data_distr = add_plot_data_2d(fig, gs[0,0], data, labels, "Data distribution", axis)
     
-    xs = np.random.rand(N,2)
-    bc = BayesClassifier()
-    bc.fit(data, labels)
+    #xs = np.random.rand(N,2)
+    bc = GaussianBayesClassifier()
+    bc.fit(trainX, trainY)
     
-    res = add_plot_model_predictions(fig, gs[0,1], xs, bc, "Predictions", axis, True)
+    res = add_plot_model_predictions(fig, gs[0,1], testX, bc, "Predictions", axis, True)
     
     sk_bc = naive_bayes.GaussianNB()
-    sk_bc.fit(data, labels)
+    sk_bc.fit(trainX, trainY)
     
-    sk_res = res = add_plot_model_predictions(fig, gs[1,1], xs, sk_bc, "sklearn predictions", axis, True)
+    sk_res = res = add_plot_model_predictions(fig, gs[1,1], testX, sk_bc, "sklearn predictions", axis, True)
+    
+    add_plot_with_roc_curve(fig, gs[0,2], testY, bc.predict(testX))
+    add_plot_with_roc_curve(fig, gs[1,2], testY, sk_bc.predict(testX))
 
     plt.show()
 

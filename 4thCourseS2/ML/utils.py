@@ -30,7 +30,9 @@ def add_plot_data_2d(fig, layout, xs, ys, title, axis = None):
   res = fig.add_subplot(layout)
   res.title.set_text(title)
   
-  res.scatter(*xs.T, c = ys.ravel())
+  scatter = res.scatter(*xs.T, c = ys.ravel())
+  
+  legend1 = res.legend(*scatter.legend_elements(), title="Classes")
 
   if not axis is None:
     res.axis(axis)
@@ -44,10 +46,10 @@ def add_plot_with_error_distrib(fig, layout, error):
   res.plot(x, error)
   return res
   
-def add_plot_with_roc_curve(fig, layout, actual, predicted):
-    fpr, tpr, thresholds = roc_curve(actual, predicted, pos_label=2)
+def add_plot_with_roc_curve(fig, layout, actual, predicted, title = 'Receiver Operating Characteristic (ROC) Curve'):
+    fpr, tpr, thresholds = roc_curve(actual, predicted)
     res = fig.add_subplot(layout)
-    res.title.set_text('Receiver Operating Characteristic (ROC) Curve')
+    res.title.set_text(title)
     res.plot(fpr, tpr, color='orange', label='ROC')
     res.plot([0, 1], [0, 1], color='darkblue', linestyle='--')
     res.set_xlabel('False Positive Rate')

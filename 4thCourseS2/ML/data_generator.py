@@ -17,7 +17,7 @@ class DataGenerator:
     @staticmethod
     def random_2d(size, classes = 2):
         x = np.random.rand(size, 2)
-        y = np.floor(np.random.rand(size, 1) * classes)
+        y = np.random.randint(0,classes,(size, 1))
         return x, y
     
     @staticmethod
