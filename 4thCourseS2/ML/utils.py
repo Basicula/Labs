@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve
 
 def random_color_hex():
     return "#" + ("%06x" % np.random.randint(0, 0xffffff))
@@ -42,3 +43,14 @@ def add_plot_with_error_distrib(fig, layout, error):
   x = np.arange(len(error))
   res.plot(x, error)
   return res
+  
+def add_plot_with_roc_curve(fig, layout, actual, predicted):
+    fpr, tpr, thresholds = roc_curve(actual, predicted, pos_label=2)
+    res = fig.add_subplot(layout)
+    res.title.set_text('Receiver Operating Characteristic (ROC) Curve')
+    res.plot(fpr, tpr, color='orange', label='ROC')
+    res.plot([0, 1], [0, 1], color='darkblue', linestyle='--')
+    res.set_xlabel('False Positive Rate')
+    res.set_ylabel('True Positive Rate')
+    res.legend()
+    

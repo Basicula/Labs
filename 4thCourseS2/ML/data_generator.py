@@ -1,6 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def split_data(data, labels):
+    n = len(data)
+    indices = np.arange(0, n)
+    np.random.shuffle(indices)
+    left_indices = indices[:n//2]
+    right_indices = indices[n//2:]
+    trainX = data[left_indices]
+    trainY = labels[left_indices]
+    testX = data[right_indices]
+    testY = labels[right_indices]
+    return trainX, trainY, testX, testY
+
 class DataGenerator:
     @staticmethod
     def random_2d(size, classes = 2):

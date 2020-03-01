@@ -1,6 +1,6 @@
 from classifier import Classifier
-from utils import add_plot_model_predictions, add_plot_data_2d
-from data_generator import DataGenerator
+from utils import add_plot_model_predictions, add_plot_data_2d, add_plot_with_roc_curve
+from data_generator import DataGenerator, split_data
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -124,27 +124,31 @@ class DecisionTreeClassifier(Classifier):
 
 
 def test():     
-    data, labels = DataGenerator.blobs_2d(100,5)
+    data, labels = DataGenerator.blobs_2d(1000,3)
+    trainX, trainY, testX, testY = split_data(data, labels)
     
     fig = plt.figure(constrained_layout=True)
-    gs = fig.add_gridspec(2,2)
+    gs = fig.add_gridspec(2,3)
     
     N = 1000
     axis = (0,1,0,1)
     
     dtc = DecisionTreeClassifier(10)
-    dtc.fit(data, labels)
+    dtc.fit(trainX, trainY)
     
     sk_dtc = DTClassifier(max_depth = 10)
-    sk_dtc.fit(data, labels)
+    sk_dtc.fit(trainX, trainY)
     
     data_distr = add_plot_data_2d(fig, gs[0,0], data, labels, "Data distributions", axis)
     
-    xs = np.random.rand(N,2)
+    #xs = np.random.rand(N,2)
     
-    res = add_plot_model_predictions(fig, gs[0,1], xs, dtc, "Predictions", axis, True)
+    res = add_plot_model_predictions(fig, gs[0,1], testX, dtc, "Predictions", axis, True)
 
-    sk_res = add_plot_model_predictions(fig, gs[1,1], xs, sk_dtc, "sklearn predictions", axis, True)
+    sk_res = add_plot_model_predictions(fig, gs[1,1], testX, sk_dtc, "sklearn predictions", axis, True)
+    
+    add_plot_with_roc_curve(fig, gs[0,2], testY, dtc.predict(testX))
+    add_plot_with_roc_curve(fig, gs[1,2], testY, sk_dtc.predict(testX))
 
     plt.show()
 
