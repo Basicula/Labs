@@ -34,7 +34,15 @@ class DataGenerator:
                 y[id][0] = i
                 id += 1
         return x, y
-        
+
+    @staticmethod
+    def blobs_with_noise_2d(blob_size, blob_cnt, noise_size):
+        x,y = DataGenerator.random_2d(noise_size, blob_cnt)
+        x1, y1 = DataGenerator.blobs_2d(blob_size, blob_cnt)
+        x = np.concatenate((x, x1))
+        y = np.concatenate((y, y1))
+        return x, y
+
     @staticmethod
     def curvelike_2d(curve_size, curve_cnt):
         x = np.zeros((curve_size * curve_cnt, 2))
