@@ -104,7 +104,7 @@ def test(classes=2):
     sk_bc = naive_bayes.GaussianNB()
     sk_bc.fit(data, labels)
     
-    sk_res = res = add_plot_model_predictions(fig, gs[1,1], xs, sk_bc, "sklearn predictions", axis, True)
+    sk_res = add_plot_model_predictions(fig, gs[1,1], xs, sk_bc, "sklearn predictions", axis, True)
 
     plt.show()
 
