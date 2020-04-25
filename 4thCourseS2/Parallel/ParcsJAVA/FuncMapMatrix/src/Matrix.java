@@ -30,7 +30,7 @@ public class Matrix implements AM {
         c.write(i);
         c.write(j);
   
-        System.out.println("Waiting for result...");
+        System.out.println("Waiting for result..." + i + " " + j);
         res[i][j] = c.readInt();
         System.out.println("Result found.");
         }
