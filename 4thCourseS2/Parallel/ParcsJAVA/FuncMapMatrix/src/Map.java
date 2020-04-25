@@ -5,6 +5,9 @@ public class Map implements AM{
         long x,y,r;
         x = info.parent.readLong();
         y = info.parent.readLong();
+        System.out.print(x);
+        System.out.print('+');
+        System.out.print(y);
         r = x+y;
         info.parent.write(r);
     }
