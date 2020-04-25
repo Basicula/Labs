@@ -27,7 +27,7 @@ public class Matrix implements AM {
         c.write(j);
   
         System.out.println("Waiting for result...");
-        res[i][j] = c.readLong();
+        res[i][j] = c.readInt();
         System.out.println("Result found.");
         }
       try{
