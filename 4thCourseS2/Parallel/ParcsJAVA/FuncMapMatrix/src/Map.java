@@ -21,12 +21,17 @@ public class Map implements AM{
         int n,m;
         n = info.parent.readInt();
         m = info.parent.readInt();
+        System.out.println("Size: "+n+"x"+m);
         int[][] temp = new int[n][m];
         for (int i = 0; i < n; ++i)
           for (int j = 0; j < m; ++j)
             temp[i][j] = info.parent.readInt();
+        System.out.println("Temp matrix have read");
         for (int i = 0; i < n; ++i)
           for (int j = 0; j < m; ++j)
-            info.parent.write(phi(temp[i][j]));
+            {
+            int r = phi(temp[i][j]);
+            info.parent.write(r);
+            }
     }
 }
