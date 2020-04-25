@@ -1,11 +1,20 @@
-import java.util.Scanner;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 import java.io.*;
 import parcs.*;
 
 public class Matrix implements AM {
 
+    public class Position 
+      {
+      public int x;
+      public int y;
+      public Position(int _x, int _y)
+        {
+        x = _x;
+        y = _y;
+        }
+      }
+    
     public static void main(String[] args) {
         task curtask = new task();
         curtask.addJarFile("Matrix.jar");
@@ -24,19 +33,32 @@ public class Matrix implements AM {
       m = sc.nextInt();
       System.out.println("Size: " + n + "x" + m);
       int[][] res = new int[n][m];
+      int workers_cnt = 2;
+      Queue<point> points = new LinkedList<point>();
+      Queue<channel> channels = new LinkedList<channel>();
+      Queue<Position> positions = new LinkedList<Position>();
       for (int i = 0; i < n; ++i)
         for (int j = 0; j < m; ++j)
-        {
-        point p = info.createPoint();
-        channel c = p.createChannel();
-        p.execute("Map");
-        c.write(i);
-        c.write(j);
-  
-        System.out.println("Waiting for result..." + i + " " + j);
-        res[i][j] = c.readInt();
-        System.out.println("Result found.");
-        }
+          {
+          point p = info.createPoint();
+          channel c = p.createChannel();
+          p.execute("Map");
+          c.write(i);
+          c.write(j);
+          points.add(p);
+          channels.add(c);
+          positions.add(new Position(i,j));
+          if(points.size() == workers_cnt)
+            {
+            while(points.size() > 0)
+              {
+              Position pos = positions.remove();
+              channel ch = channels.remove();
+              res[pos.x][pos.y] = ch.readInt();
+              points.remove();
+              }
+            }
+          }
       try{
           PrintWriter out = new PrintWriter(new FileWriter(info.curtask.addPath("Matrix.res")));
           out.println(res);

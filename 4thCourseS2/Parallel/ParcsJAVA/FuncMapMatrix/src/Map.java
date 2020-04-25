@@ -4,10 +4,8 @@ public class Map implements AM{
     public void run(AMInfo info){
         int x,y,r;
         x = info.parent.readInt();
-        System.out.print(x);
         y = info.parent.readInt();
-        System.out.print('+');
-        System.out.print(y);
+        System.out.println(x + '+' + y);
         r = x+y;
         info.parent.write(r);
     }
