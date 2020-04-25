@@ -27,12 +27,12 @@ public class Matrix implements AM {
         c.write(j);
   
         System.out.println("Waiting for result...");
-        long res[i][j] = c.readLong();
+        res[i][j] = c.readLong();
         System.out.println("Result found.");
         }
       try{
           PrintWriter out = new PrintWriter(new FileWriter(info.curtask.addPath("Matrix.res")));
-          out.println(r);
+          out.println(res);
           out.close();
       } catch (IOException e) {e.printStackTrace(); return;}
     }
