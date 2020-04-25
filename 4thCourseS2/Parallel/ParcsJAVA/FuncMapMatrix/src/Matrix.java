@@ -35,6 +35,7 @@ public class Matrix implements AM {
       for (int i = 0; i < workers_cnt; ++i)
         {
         points[i] = info.createPoint();
+        points[i].execute("Map");
         channels[i] = points[i].createChannel();
         channels[i].write(n / workers_cnt);
         channels[i].write(m);
@@ -47,7 +48,6 @@ public class Matrix implements AM {
             {
             point p = points[k];
             channel c = channels[k];
-            p.execute("Map");
             c.write(matrix[i + k * n / workers_cnt][j]);
             }
           }
