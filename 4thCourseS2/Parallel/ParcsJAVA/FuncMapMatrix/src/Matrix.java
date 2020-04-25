@@ -28,7 +28,7 @@ public class Matrix implements AM {
         channel c = p.createChannel();
         p.execute("Map");
         c.write(i);
-        c.write(j);
+        //c.write(j);
   
         System.out.println("Waiting for result..." + i + " " + j);
         res[i][j] = c.readInt();
