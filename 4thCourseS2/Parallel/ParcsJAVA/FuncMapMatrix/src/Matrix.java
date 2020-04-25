@@ -23,7 +23,6 @@ public class Matrix implements AM {
       n = sc.nextInt();
       m = sc.nextInt();
       System.out.println("Size: " + n + "x" + m);
-      
       int[][] res = new int[n][m];
       for (int i = 0; i < n; ++i)
         for (int j = 0; j < m; ++j)
@@ -32,7 +31,7 @@ public class Matrix implements AM {
         channel c = p.createChannel();
         p.execute("Map");
         c.write(i);
-        //c.write(j);
+        c.write(j);
   
         System.out.println("Waiting for result..." + i + " " + j);
         res[i][j] = c.readInt();
