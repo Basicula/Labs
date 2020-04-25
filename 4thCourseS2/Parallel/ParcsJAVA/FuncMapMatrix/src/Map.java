@@ -2,7 +2,6 @@ import parcs.*;
 
 public class Map implements AM{
     public void run(AMInfo info){
-        System.out.println("q");
         int x,y,r;
         x = info.parent.readInt();
         System.out.print(x);

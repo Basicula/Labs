@@ -1,4 +1,6 @@
 import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
 import java.io.*;
 import parcs.*;
 
@@ -20,6 +22,8 @@ public class Matrix implements AM {
       catch (IOException e) {e.printStackTrace(); return;}
       n = sc.nextInt();
       m = sc.nextInt();
+      System.out.println("Size: " + n + "x" + m);
+      
       int[][] res = new int[n][m];
       for (int i = 0; i < n; ++i)
         for (int j = 0; j < m; ++j)
