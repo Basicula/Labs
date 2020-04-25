@@ -13,7 +13,11 @@ public class Matrix implements AM {
 
     public void run(AMInfo info) {
       int n, m;
-      Scanner sc = new Scanner(new File(info.curtask.findFile("Matrix.data")));
+      Scanner sc;
+      try{
+        sc = new Scanner(new File(info.curtask.findFile("Matrix.data")));
+      }
+      catch (IOException e) {e.printStackTrace(); return;}
       n = sc.nextInt();
       m = sc.nextInt();
       int[][] res = new int[n][m];
