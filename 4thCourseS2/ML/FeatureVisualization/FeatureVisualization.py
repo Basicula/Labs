@@ -4,7 +4,7 @@ from keras.preprocessing.image import img_to_array, load_img
 import matplotlib.pyplot as plt
 import numpy as np
 
-example_root = 'example25/'
+example_root = 'example16/'
 
 def nearest_sqr(n):
     sqrt_n = int(np.sqrt(n))
@@ -111,11 +111,12 @@ def visualize_feature_map_block_by_block(model, custom_indices = None, feature_s
 def main():
     model = VGG16()
     
+    n = 16
     filters = get_filters_for_layer(model, 1)
-    visualize_layer_filters_separately_rgb(filters, 25)
-    visualize_layer_filters_rgb(filters, 25)
+    visualize_layer_filters_separately_rgb(filters, n)
+    visualize_layer_filters_rgb(filters, n)
     visualize_picture()
-    visualize_feature_map_block_by_block(model, feature_size = 25)
+    visualize_feature_map_block_by_block(model, feature_size = n)
     
     #plt.show()
 

@@ -125,7 +125,7 @@ class RandomForestClassifier(Classifier):
         pass
 
 def test():     
-    data, labels = DataGenerator.blobs_2d(100,5)
+    data, labels = DataGenerator.blobs_2d(100,6)
     
     fig = plt.figure(constrained_layout=True)
     gs = fig.add_gridspec(2,2)

@@ -124,7 +124,7 @@ class DecisionTreeClassifier(Classifier):
 
 
 def test():     
-    data, labels = DataGenerator.blobs_2d(1000,3)
+    data, labels = DataGenerator.blobs_2d(100,3)
     trainX, trainY, testX, testY = split_data(data, labels)
     
     fig = plt.figure(constrained_layout=True)
@@ -141,14 +141,15 @@ def test():
     
     data_distr = add_plot_data_2d(fig, gs[0,0], data, labels, "Data distributions", axis)
     
-    #xs = np.random.rand(N,2)
+    xs = np.random.rand(N,2)
     
-    res = add_plot_model_predictions(fig, gs[0,1], testX, dtc, "Predictions", axis, True)
+    res = add_plot_model_predictions(fig, gs[0,1], xs, dtc, "Predictions", axis, True)
 
-    sk_res = add_plot_model_predictions(fig, gs[1,1], testX, sk_dtc, "sklearn predictions", axis, True)
+    sk_res = add_plot_model_predictions(fig, gs[1,1], xs, sk_dtc, "sklearn predictions", axis, True)
     
-    add_plot_with_roc_curve(fig, gs[0,2], testY, dtc.predict(testX))
-    add_plot_with_roc_curve(fig, gs[1,2], testY, sk_dtc.predict(testX))
+    #for c in range(classes):
+    #    add_plot_with_roc_curve(fig, gs[0,2], testY==c, dtc.predict(testX))
+    #    add_plot_with_roc_curve(fig, gs[1,2], testY==c, sk_dtc.predict(testX))
 
     plt.show()
 

@@ -24,17 +24,17 @@ SYNTAX.
           (
             "dlet"      | "get next" | "gn"       | "get next in parent"      | "gnp" |
       	    "get unique"| "gu"       | "insert"   | "isrt"       | "position" | "pos" |
-	    "replace"   | "repl"     | "retrieve" | "schedule"   | "schd"     |
-	    "terminate" | "term"     | "accept"   | "checkpoint" | "chkp"     |
-	    "deq"       | "load"     | "log"      | "query"      | "refresh"  |
-	    "rolb"      | "roll"     | "rols"     | "sets"       | "setu"     | "statistics" |
-	    "stat"      | "symchkp"  | "xrst"     
+            "replace"   | "repl"     | "retrieve" | "schedule"   | "schd"     |
+            "terminate" | "term"     | "accept"   | "checkpoint" | "chkp"     |
+            "deq"       | "load"     | "log"      | "query"      | "refresh"  |
+            "rolb"      | "roll"     | "rols"     | "sets"       | "setu"     | "statistics" |
+            "stat"      | "symchkp"  | "xrst"     
           ); 
 
- 	        params-func-pcb::=          "pcb"          "(" arg-name => arg-body ")" ;
-	        params-func-segment::=      "segment"      "(" arg-name => arg-body ")" ;
-	        params-func-seglength::=    "seglength"    "(" arg-name => arg-body ")" ;
-	        params-func-from::=         "from"         "(" arg-name => arg-body ")" ;
+    params-func-pcb::=          "pcb"          "(" arg-name => arg-body ")" ;
+    params-func-segment::=      "segment"      "(" arg-name => arg-body ")" ;
+    params-func-seglength::=    "seglength"    "(" arg-name => arg-body ")" ;
+    params-func-from::=         "from"         "(" arg-name => arg-body ")" ;
  		params-func-setzero::=      "setzero"      "(" arg-name => arg-body ")" ;
 		params-func-keyfeedback::=  "keyfeedback"  "(" arg-name => arg-body ")" ;
 		params-func-feedbacklen::=  "feedbacklen"  "(" arg-name => arg-body ")" ;

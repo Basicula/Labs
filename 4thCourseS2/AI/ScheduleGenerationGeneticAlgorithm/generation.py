@@ -64,7 +64,7 @@ class GeneticAlgorithm:
 
 
 if __name__ == "__main__":
-    data = generate_random_data(20,10,10,10)
+    data = generate_random_data(20,10,8,10)
     population = Population(10, data)
     genalgo = GeneticAlgorithm(data)
     num_conflicts = 10000
