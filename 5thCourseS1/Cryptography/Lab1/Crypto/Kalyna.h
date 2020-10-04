@@ -69,8 +69,6 @@ class Kalyna : public CryptoBase
     size_t m_nb;
     size_t m_nk;
     size_t m_nr;
-    
-    std::string m_key;
 
     std::vector<std::vector<uint64_t>> m_round_keys;
   };

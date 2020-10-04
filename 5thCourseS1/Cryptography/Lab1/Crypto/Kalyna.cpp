@@ -194,7 +194,7 @@ namespace
     {
     uint8_t r = 0;
     uint8_t hbit = 0;
-    for (size_t i = 0; i < sizeof(uint8_t); ++i) 
+    for (size_t i = 0; i < 8; ++i) 
       {
       if ((y & 0x1) == 1)
         r ^= x;
@@ -383,8 +383,8 @@ std::vector<uint64_t> Kalyna::_Prepare(const std::string& i_data, size_t i_size)
     temp.push_back(0x00);
   std::vector<uint64_t> res(i_size);
   for (auto i = 0u; i < i_size; ++i)
-    for (auto j = 0u; j < 8; ++j)
-      reinterpret_cast<uint8_t*>(&res[i])[j] = temp[i * 8ull + j];
+    for (auto j = 0u; j < sizeof(uint64_t); ++j)
+      reinterpret_cast<uint8_t*>(&res[i])[j] = temp[i * sizeof(uint64_t) + j];
   return res;
   }
 
@@ -503,9 +503,9 @@ void Kalyna::_RotateLeft(std::vector<uint64_t>& io_state)
   uint8_t* bytes = reinterpret_cast<uint8_t*>(io_state.data());
   uint8_t* buffer = new uint8_t[rotate_bytes];
 
-  std::copy(buffer, buffer + rotate_bytes, bytes);
+  std::copy(bytes, bytes + rotate_bytes, buffer);
   std::memmove(bytes, bytes + rotate_bytes, bytes_num - rotate_bytes);
-  std::copy(bytes + bytes_num - rotate_bytes, bytes + bytes_num, buffer);
+  std::copy(buffer, buffer + rotate_bytes, bytes + bytes_num - rotate_bytes);
   }
 
 void Kalyna::_Rotate(std::vector<uint64_t>& io_state)
@@ -524,7 +524,7 @@ void Kalyna::_KeyExpansion()
   m_round_keys.clear();
   m_round_keys.resize(m_nr + 1);
   auto key = _Prepare(m_key, m_nk);
-  std::vector<uint64_t> kt(4, 0);
+  std::vector<uint64_t> kt(m_nb, 0);
   kt[0] = m_nb + m_nk + 1;
   _AddRoundKeyExpand(key, kt);
   _EncipherRound(kt);
