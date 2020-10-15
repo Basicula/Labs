@@ -1,7 +1,5 @@
 #include "AES.h"
 
-#include <iostream>
-#include <fstream>
 #include <sstream>
 
 namespace

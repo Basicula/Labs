@@ -1,10 +1,8 @@
 #include "CryptoBase.h"
 
-#include <fstream>
-
 void CryptoBase::SetKey(const std::string& i_key)
   {
-  if (m_key != i_key)
+  if (m_key != i_key || m_key.empty())
     {
     m_key = i_key;
     _ProcessNewKey();

@@ -50,6 +50,7 @@ void compare_benchmark()
   enciphers.emplace("Kalyna256x256", std::make_unique<Kalyna>(Kalyna::BlockSize::kBlock256, Kalyna::KeySize::kKey256));
   enciphers.emplace("Kalyna256x512", std::make_unique<Kalyna>(Kalyna::BlockSize::kBlock256, Kalyna::KeySize::kKey512));
   enciphers.emplace("Kalyna512x512", std::make_unique<Kalyna>(Kalyna::BlockSize::kBlock512, Kalyna::KeySize::kKey512));
+  enciphers.emplace("RC4", std::make_unique<RC4>());
 
 
   const std::string key = "qwertyuioplkjhfm";
@@ -86,13 +87,6 @@ void compare_benchmark()
 
 int main()
   {
-  //compare_benchmark();
-
-  std::string text = "qwertyuhbgvdsa";
-  RC4 rc4;
-  rc4.SetKey("key");
-  auto enc = rc4.EncryptString(text);
-  auto dec = rc4.DecryptString(enc);
-  std::cout << text << " " << enc << " " << dec << std::endl;
+  compare_benchmark();
   return 0;
   }

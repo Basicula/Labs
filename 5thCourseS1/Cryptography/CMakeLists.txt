@@ -60,6 +60,7 @@ add_executable(
   
   Tests/AES_tests.cpp
   Tests/Kalyna_tests.cpp
+  Tests/RC4_tests.cpp
 )
 target_link_libraries(Tests PRIVATE Crypto)
 target_link_libraries(Tests PRIVATE gtest_main)
