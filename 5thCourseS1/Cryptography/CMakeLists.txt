@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(AES)
+project(Cryptography)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -44,6 +44,9 @@ add_library(
   
   Crypto/Kalyna.cpp 
   Crypto/Kalyna.h
+  
+  Crypto/RC4.cpp 
+  Crypto/RC4.h
 )
 target_include_directories(Crypto PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Crypto")
 

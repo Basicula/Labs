@@ -1,5 +1,6 @@
 #include <AES.h>
 #include <Kalyna.h>
+#include <RC4.h>
 
 #include <iostream>
 #include <fstream>
@@ -85,6 +86,13 @@ void compare_benchmark()
 
 int main()
   {
-  compare_benchmark();
+  //compare_benchmark();
+
+  std::string text = "qwertyuhbgvdsa";
+  RC4 rc4;
+  rc4.SetKey("key");
+  auto enc = rc4.EncryptString(text);
+  auto dec = rc4.DecryptString(enc);
+  std::cout << text << " " << enc << " " << dec << std::endl;
   return 0;
   }
