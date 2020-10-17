@@ -7,6 +7,7 @@ TEST(Salsa20_128, common_case)
   Salsa20 salsa20_128(Salsa20::KeyLength::Key128);
   const std::string key = "0123456789abcdef";
   salsa20_128.SetKey(key);
+  salsa20_128.SetNonce(12345);
   const std::string text = "sometext";
   const auto encrypted = salsa20_128.EncryptString(text);
   const auto decrypted = salsa20_128.DecryptString(encrypted);
@@ -68,6 +69,7 @@ TEST(Salsa20_256, common_case)
   Salsa20 salsa20_256(Salsa20::KeyLength::Key256);
   const std::string key = "0123456789abcdef0123456789abcdef";
   salsa20_256.SetKey(key);
+  salsa20_256.SetNonce(12345);
   const std::string text = "sometext";
   const auto encrypted = salsa20_256.EncryptString(text);
   const auto decrypted = salsa20_256.DecryptString(encrypted);

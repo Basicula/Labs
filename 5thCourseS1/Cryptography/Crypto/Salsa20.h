@@ -13,6 +13,8 @@ class Salsa20 : public CryptoBase
   public:
     Salsa20(KeyLength i_key_length = KeyLength::Key128);
 
+    void SetNonce(uint64_t i_nonce);
+
     virtual std::string EncryptString(const std::string& i_data) const override;
     virtual std::string DecryptString(const std::string& i_data) const override;
 

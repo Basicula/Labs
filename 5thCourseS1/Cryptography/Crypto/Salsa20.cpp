@@ -36,6 +36,13 @@ Salsa20::Salsa20(KeyLength i_key_length)
   {
   }
 
+void Salsa20::SetNonce(uint64_t i_nonce)
+  {
+  auto raw_nonce = reinterpret_cast<uint32_t*>(&i_nonce);
+  m_init_key[6] = raw_nonce[0];
+  m_init_key[7] = raw_nonce[1];
+  }
+
 std::string Salsa20::EncryptString(const std::string& i_data) const
   {
   return _Process(i_data);
