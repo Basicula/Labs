@@ -126,7 +126,7 @@ void Salsa20::_Process(std::ifstream& i_from, std::ofstream& i_to) const
     }
   if (i_from.gcount() > 0)
     {
-    _ProcessBlock(buffer.data(), i_from.gcount(), stream_pos);
+    _ProcessBlock(buffer.data(), (i_from.gcount() + 3) / 4, stream_pos);
     i_to.write(raw_data, i_from.gcount());
     }
   }
