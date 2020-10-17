@@ -47,6 +47,9 @@ add_library(
   
   Crypto/RC4.cpp 
   Crypto/RC4.h
+  
+  Crypto/Salsa20.cpp
+  Crypto/Salsa20.h
 )
 target_include_directories(Crypto PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Crypto")
 
@@ -61,6 +64,7 @@ add_executable(
   Tests/AES_tests.cpp
   Tests/Kalyna_tests.cpp
   Tests/RC4_tests.cpp
+  Tests/Salsa20_tests.cpp
 )
 target_link_libraries(Tests PRIVATE Crypto)
 target_link_libraries(Tests PRIVATE gtest_main)

@@ -1,6 +1,7 @@
 #include <AES.h>
 #include <Kalyna.h>
 #include <RC4.h>
+#include <Salsa20.h>
 
 #include <iostream>
 #include <fstream>
@@ -51,7 +52,8 @@ void compare_benchmark()
   enciphers.emplace("Kalyna256x512", std::make_unique<Kalyna>(Kalyna::BlockSize::kBlock256, Kalyna::KeySize::kKey512));
   enciphers.emplace("Kalyna512x512", std::make_unique<Kalyna>(Kalyna::BlockSize::kBlock512, Kalyna::KeySize::kKey512));
   enciphers.emplace("RC4", std::make_unique<RC4>());
-
+  enciphers.emplace("Salsa20128", std::make_unique<Salsa20>(Salsa20::KeyLength::Key128));
+  enciphers.emplace("Salsa20256", std::make_unique<Salsa20>(Salsa20::KeyLength::Key256));
 
   const std::string key = "qwertyuioplkjhfm";
   for (auto& encipher : enciphers)
@@ -77,6 +79,7 @@ void compare_benchmark()
       results_stream << " encrypted in " << time.first << " " << time.second;
 
       time = func_time([&]() {encipher.second->Decrypt(encrypted_filename, decrypted_filename); });
+      std::cout << " decrypted in " << time.first << " " << time.second << std::endl;
       results_stream << " decrypted in " << time.first << " " << time.second << std::endl;
 
       std::filesystem::remove(encrypted_filename);
