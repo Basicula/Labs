@@ -1,6 +1,28 @@
-# **AES and Kalyna enciphers**
+# **LAB №2**
+Added RC4 stream cipher.
+Added Salsa20 stream cipher with 128 and 256 key length modes.
+Added CBC, CFB, OFB and CTR stream cipher modes for AES cipher.
 
-## **Implementation details**
+### **Results**
+
+**ms - milliseconds**, **s - seconds**, **us - microseconds** 
+| Encipher\Size | 1kb       |    1kb    | 1024kb     |1024kb     | 100mb      |100mb      | 500mb     |500mb     | 1gb       |1gb       |
+|---------------|-----------|-----------|------------|------------|------------|------------|-----------|-----------|-----------|-----------|
+|               | Encrypted | Decrypted | Encrypted  | Decrypted  | Encrypted  | Decrypted  | Encrypted | Decrypted | Encrypted | Decrypted |
+| AES_CBC_128   | 4.8679 ms | 3.6701 ms | 35.138 ms  | 51.6287 ms | 3.08446 s  | 4.13229 s  | 14.7417 s | 18.1743 s | 29.7394 s | 41.4549 s |
+| AES_CFB_128   | 4.7728 ms | 903.7 us  | 34.796 ms  | 37.8838 ms | 2.93613 s  | 3.57207 s  | 14.6224 s | 14.9392 s | 29.7324 s | 34.564 s  |
+| AES_CTR_128   | 4.379 ms  | 822.3 us  | 32.6665 ms | 38.7065 ms | 2.90884 s  | 3.37622 s  | 14.2903 s | 14.7707 s | 29.9022 s | 34.4539 s |
+| AES_ECB_128   | 4.4351 ms | 813.7 us  | 33.6062 ms | 45.9605 ms | 2.84921 s  | 4.13495 s  | 14.4315 s | 17.7446 s | 29.2932 s | 41.3833 s |
+| AES_OFB_128   | 4.2873 ms | 869.6 us  | 32.8818 ms | 40.462 ms  | 2.94179 s  | 3.69081 s  | 14.2960 s | 14.6986 s | 29.5473 s | 34.2836 s |
+| RC4           | 5.3642 ms | 1.0662 ms | 10.0334 ms | 10.9 ms    | 574.354 ms | 574.874 ms | 8.9127 s  | 8.8914 s  | 6.02778 s | 6.01359 s |
+| Salsa20_128   | 5.0588 ms | 986.9 us  | 11.7557 ms | 14.2947 ms | 746.795 ms | 754.257 ms | 3.7795 s  | 3.8042 s  | 7.73646 s | 7.95147 s |
+| Salsa20_256   | 3.9793 ms | 1.0937 ms | 10.9296 ms | 12.0526 ms | 752.026 ms | 759.084 ms | 3.7404 s  | 3.9691 s  | 7.88292 s | 8.00517 s |
+
+
+# **LAB №1**
+## **AES and Kalyna enciphers**
+
+### **Implementation details**
 All enciphers have similar and simple usage, file-to-file or string-to-string. First of all need to define some key as some string:
 ```
 const std::string key = "someKey";
@@ -42,10 +64,10 @@ const std::filesystem::path decrypted_file_path("path/to/decrypted_file.ext");
 kal256x256.Decrypt(encrypted_file_path, decrypted_file_path);
 ```
 
-## **Configuring and Build**
+### **Configuring and Build**
 To configure project you will need CMake. Just ran CMake gui select source dir where CMakeLists.txt is located and select custom build directort, press Generate and project will be generated. To run benchmark comparison you'll need to set as startup project ***Main*** compile and build code and wait while benchmark complete. This comparison will generate file "results.txt" that will contain time performance results for files that locate in **test_files** folder. Also the same report will be available in the command prompt. To run google tests (unittests) set as startup project ***Tests*** compile and build code and wait for testing report.
 
-## **Structure:**
+### **Structure:**
  - Crypto
    - CryptoBase - common functionality for AES and Kalyna
    - AES implementation
@@ -55,13 +77,13 @@ To configure project you will need CMake. Just ran CMake gui select source dir w
    - Kalyna tests
  - aes.py - python version of AES implementation ( very slow :) )
 
-## **Tools**
+### **Tools**
  - C++17 - main language
  - VisualStudio19 - IDE
  - Cmake - configuration tool
  - GTests - testing tool
 
-## **Results**
+### **Results**
 **ms - milliseconds**, **s - seconds**, **m - minutes**
 | Encipher\Size | 1kb       |      1kb     | 1024kb    |    1024kb       | 100mb     |     100mb      | 500mb     |   500mb        | 1gb       |     1gb      |
 |---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
@@ -75,5 +97,5 @@ To configure project you will need CMake. Just ran CMake gui select source dir w
 | Kalyna256x512 | 7.1829ms  | 10.22ms   | 365.949ms | 360.204ms | 34.7049s  | 35.6366s  | 3.46135m  | 3.5269m   | 5.78953m  | 6.77706m  |
 | Kalyna512x512 | 9.367ms   | 9.6509ms  | 298.93ms  | 305.998ms | 29.832s   | 30.4354s  | 2.90871m  | 2.96645m  | 6.11886m  | 6.19385m  |
 
-## **Conclusion**
+### **Conclusion**
 AES kind of easy to implement and use and also quite fast. Kalyna is more complicated to implement and slower than AES, but maybe more secure than AES.
