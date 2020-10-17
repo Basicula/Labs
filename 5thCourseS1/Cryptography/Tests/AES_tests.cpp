@@ -111,7 +111,7 @@ TEST(AES, key_length_influance)
   const std::string key128 = "1234567890123456";
   const std::string key192 = "123456789012345612345678";
   const std::string key256 = "12345678901234561234567890123456";
-  const std::string text = "123";
+  const std::string text = "0123456789abcdef0123456789abcdef0123456";
   aes128.SetKey(key128);
   aes192.SetKey(key192);
   aes256.SetKey(key256);
@@ -127,4 +127,79 @@ TEST(AES, key_length_influance)
   EXPECT_EQ(text, decrypted128);
   EXPECT_EQ(text, decrypted192);
   EXPECT_EQ(text, decrypted256);
+  }
+
+TEST(AES_CBC, common_case)
+  {
+  AES aes(AES::KeySize::AES128, AES::Mode::CBC);
+  const std::string key = "1234567890123456";
+  const std::string text = "0123456789abcdef0123456789abcdef0123456";
+  aes.SetKey(key);
+  const std::string encrypted = aes.EncryptString(text);
+  const std::string decrypted = aes.DecryptString(encrypted);
+  EXPECT_EQ(text, decrypted);
+  }
+
+TEST(AES_CFB, common_case)
+  {
+  AES aes(AES::KeySize::AES128, AES::Mode::CFB);
+  const std::string key = "1234567890123456";
+  const std::string text = "0123456789abcdef0123456789abcdef0123456";
+  aes.SetKey(key);
+  const std::string encrypted = aes.EncryptString(text);
+  const std::string decrypted = aes.DecryptString(encrypted);
+  EXPECT_EQ(text, decrypted);
+  }
+
+TEST(AES_OFB, common_case)
+  {
+  AES aes(AES::KeySize::AES128, AES::Mode::OFB);
+  const std::string key = "1234567890123456";
+  const std::string text = "0123456789abcdef0123456789abcdef0123456";
+  aes.SetKey(key);
+  const std::string encrypted = aes.EncryptString(text);
+  const std::string decrypted = aes.DecryptString(encrypted);
+  EXPECT_EQ(text, decrypted);
+  }
+
+TEST(AES, different_modes_comparison)
+  {
+  AES aes_ecb(AES::KeySize::AES128, AES::Mode::ECB);
+  AES aes_cbc(AES::KeySize::AES128, AES::Mode::CBC);
+  AES aes_cfb(AES::KeySize::AES128, AES::Mode::CFB);
+  AES aes_ofb(AES::KeySize::AES128, AES::Mode::OFB);
+  AES aes_ctr(AES::KeySize::AES128, AES::Mode::CTR);
+  const std::string key = "1234567890123456";
+  const std::string text = "0123456789abcdef0123456789abcdef0123456";
+  aes_ecb.SetKey(key);
+  aes_cbc.SetKey(key);
+  aes_cfb.SetKey(key);
+  aes_ofb.SetKey(key);
+  aes_ctr.SetKey(key);
+  const auto encrypted_ecb = aes_ecb.EncryptString(text);
+  const auto encrypted_cbc = aes_cbc.EncryptString(text);
+  const auto encrypted_cfb = aes_cfb.EncryptString(text);
+  const auto encrypted_ofb = aes_ofb.EncryptString(text);
+  const auto encrypted_ctr = aes_ctr.EncryptString(text);
+  EXPECT_NE(encrypted_ecb, encrypted_cbc);
+  EXPECT_NE(encrypted_ecb, encrypted_cfb);
+  EXPECT_NE(encrypted_ecb, encrypted_ofb);
+  EXPECT_NE(encrypted_ecb, encrypted_ctr);
+  EXPECT_NE(encrypted_cbc, encrypted_cfb);
+  EXPECT_NE(encrypted_cbc, encrypted_ofb);
+  EXPECT_NE(encrypted_cbc, encrypted_ctr);
+  EXPECT_NE(encrypted_cfb, encrypted_ofb);
+  EXPECT_NE(encrypted_cfb, encrypted_ctr);
+  EXPECT_NE(encrypted_ofb, encrypted_ctr);
+
+  const auto decrypted_ecb = aes_ecb.DecryptString(encrypted_ecb);
+  const auto decrypted_cbc = aes_cbc.DecryptString(encrypted_cbc);
+  const auto decrypted_cfb = aes_cfb.DecryptString(encrypted_cfb);
+  const auto decrypted_ofb = aes_ofb.DecryptString(encrypted_ofb);
+  const auto decrypted_ctr = aes_ctr.DecryptString(encrypted_ctr);
+  EXPECT_EQ(decrypted_ecb, text);
+  EXPECT_EQ(decrypted_cbc, text);
+  EXPECT_EQ(decrypted_cfb, text);
+  EXPECT_EQ(decrypted_ofb, text);
+  EXPECT_EQ(decrypted_ctr, text);
   }

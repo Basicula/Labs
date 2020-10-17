@@ -4,6 +4,8 @@
 
 namespace
   {
+  std::vector<uint32_t> g_temp_block;
+
   std::vector<uint8_t> sbox = {
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
@@ -94,11 +96,12 @@ namespace
     }
   }
 
-AES::AES(KeySize i_type)
-  : m_mult_table(16, std::vector<uint8_t>(256))
+AES::AES(KeySize i_type, Mode i_mode)
+  : m_nb(4)
+  , m_mult_table(16, std::vector<uint8_t>(256))
   , m_type(i_type)
+  , m_mode(i_mode)
   {
-  m_nb = 4;
   switch (m_type)
     {
     case KeySize::AES128:
@@ -123,12 +126,16 @@ AES::AES(KeySize i_type)
 std::string AES::EncryptString(const std::string& i_data) const
   {
   std::string res;
+
+  std::vector<uint32_t> IV;
+  _InitInitialVector(IV);
+
   for (size_t i = 0; i < i_data.size(); i += 16)
     {
     auto to = std::min(i_data.size(), i + 16);
     auto state = _Prepare(i_data.substr(i, to), 4);
 
-    _EncryptBlock(state);
+    _EncryptBlock(state, IV);
 
     res += state_to_str(state);
     }
@@ -140,14 +147,18 @@ void AES::_Encrypt(std::ifstream& i_from, std::ofstream& i_to) const
   {
   std::vector<uint32_t> buffer(4);
   auto raw_data = reinterpret_cast<char*>(buffer.data());
+  
+  std::vector<uint32_t> IV;
+  _InitInitialVector(IV);
+
   while (i_from.read(raw_data, 16))
     {
-    _EncryptBlock(buffer);
+    _EncryptBlock(buffer, IV);
     i_to.write(raw_data, 16);
     }
   if (i_from.gcount() > 0)
     {
-    _EncryptBlock(buffer);
+    _EncryptBlock(buffer, IV);
     i_to.write(raw_data, i_from.gcount());
     }
   }
@@ -168,15 +179,49 @@ void AES::_EncryptBlock(std::vector<uint32_t>& block) const
   _AddRoundKey(block, m_nr);
   }
 
+void AES::_EncryptBlock(std::vector<uint32_t>& io_block, std::vector<uint32_t>& io_IV) const
+  {
+  switch (m_mode)
+    {
+    case AES::Mode::CBC:
+      _ApplyIV(io_block, io_IV);
+      _EncryptBlock(io_block);
+      _UpdateIV(io_IV, io_block);
+      break;
+    case AES::Mode::CFB:
+      _EncryptBlock(io_IV);
+      _ApplyIV(io_block, io_IV);
+      _UpdateIV(io_IV, io_block);
+      break;
+    case AES::Mode::OFB:
+      _EncryptBlock(io_IV);
+      _ApplyIV(io_block, io_IV);
+      break;
+    case AES::Mode::CTR:
+      _EncryptBlock(io_IV);
+      _ApplyIV(io_block, io_IV);
+      _UpdateIV(io_IV, io_block);
+      break;
+    case AES::Mode::ECB:
+    default:
+      _EncryptBlock(io_block);
+      break;
+    }
+  }
+
 std::string AES::DecryptString(const std::string& i_data) const
   {
   std::string res;
+
+  std::vector<uint32_t> IV;
+  _InitInitialVector(IV);
+
   for (size_t i = 0; i < i_data.size(); i += 16)
     {
     auto to = std::min(i_data.size(), i + 16);
     auto state = _Prepare(i_data.substr(i, to), 4);
 
-    _DecryptBlock(state);
+    _DecryptBlock(state, IV);
 
     res += state_to_str(state);
     }
@@ -193,18 +238,75 @@ void AES::_ProcessNewKey()
   _KeyExpansion();
   }
 
+void AES::_InitInitialVector(std::vector<uint32_t>& o_IV) const
+  {
+  uint32_t sum = 0;
+  for (const auto& k : m_key_schedule)
+    sum += k;
+  srand(sum);
+  o_IV.clear();
+  o_IV.resize(m_nb);
+  for (auto& v : o_IV)
+    v = rand() % sum;
+  }
+
+void AES::_UpdateIV(std::vector<uint32_t>& o_IV, const std::vector<uint32_t>& i_block) const
+  {
+  switch (m_mode)
+    {
+    case AES::Mode::CBC:
+    case AES::Mode::CFB:
+    case AES::Mode::OFB:
+      o_IV = i_block;
+      break;
+    case AES::Mode::CTR:
+      for (auto i = 1u; i < o_IV.size(); ++i)
+        {
+        ++o_IV[i - 1];
+        if (o_IV[i - 1] != 0)
+          break;
+        }
+      break;
+    case AES::Mode::ECB:
+    default:
+      break;
+    }
+  }
+
+void AES::_ApplyIV(std::vector<uint32_t>& io_block, const std::vector<uint32_t>& i_IV) const
+  {
+  switch (m_mode)
+    {
+    case AES::Mode::CBC:
+    case AES::Mode::CFB:
+    case AES::Mode::OFB:
+    case AES::Mode::CTR:
+      for (auto i = 0u; i < io_block.size(); ++i)
+        io_block[i] ^= i_IV[i];
+      break;
+    case AES::Mode::ECB:
+    default:
+      break;
+    }
+  }
+
 void AES::_Decrypt(std::ifstream& i_from, std::ofstream& i_to) const
   {
   std::vector<uint32_t> buffer(4);
   auto raw_data = reinterpret_cast<char*>(buffer.data());
+  
+  std::vector<uint32_t> IV;
+  _InitInitialVector(IV);
+
   while (i_from.read(raw_data, 16))
     {
-    _DecryptBlock(buffer);
+    _DecryptBlock(buffer, IV);
     i_to.write(raw_data, 16);
     }
+
   if (i_from.gcount() > 0)
     {
-    _DecryptBlock(buffer);
+    _DecryptBlock(buffer, IV);
     i_to.write(raw_data, i_from.gcount());
     }
   }
@@ -223,6 +325,37 @@ void AES::_DecryptBlock(std::vector<uint32_t>& io_block) const
   _ShiftRows(io_block, true);
   _SubBytes(io_block, true);
   _AddRoundKey(io_block, 0);
+  }
+
+void AES::_DecryptBlock(std::vector<uint32_t>& io_block, std::vector<uint32_t>& io_IV) const
+  {
+  g_temp_block.assign(io_block.begin(), io_block.end());
+  switch (m_mode)
+    {
+    case AES::Mode::CBC:
+      _DecryptBlock(io_block);
+      _ApplyIV(io_block, io_IV);
+      _UpdateIV(io_IV, g_temp_block);
+      break;
+    case AES::Mode::CFB:
+      _EncryptBlock(io_IV);
+      _ApplyIV(io_block, io_IV);
+      _UpdateIV(io_IV, g_temp_block);
+      break;
+    case AES::Mode::OFB:
+      _EncryptBlock(io_IV);
+      _ApplyIV(io_block, io_IV);
+      break;
+    case AES::Mode::CTR:
+      _EncryptBlock(io_IV);
+      _ApplyIV(io_block, io_IV);
+      _UpdateIV(io_IV, io_block);
+      break;
+    case AES::Mode::ECB:
+    default:
+      _DecryptBlock(io_block);
+      break;
+    }
   }
 
 std::vector<uint32_t> AES::_Prepare(const std::string& i_data, size_t i_size) const
