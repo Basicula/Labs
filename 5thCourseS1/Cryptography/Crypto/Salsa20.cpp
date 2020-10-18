@@ -16,14 +16,6 @@ namespace
     d ^= rotate(c + b, 13);
     a ^= rotate(d + c, 18);
     }
-
-  uint32_t uint8_to_uint32(const uint8_t* i_bytes)
-    {
-    return ((static_cast<uint32_t>(i_bytes[0]) << 0) |
-      (static_cast<uint32_t>(i_bytes[1]) << 8) |
-      (static_cast<uint32_t>(i_bytes[2]) << 16) |
-      (static_cast<uint32_t>(i_bytes[3]) << 24));
-    }
   }
 
 const uint8_t Salsa20::mg_key16_const[16] = { 'e','x','p','a','n','d',' ','1','6','-','b','y','t','e',' ','k' };
