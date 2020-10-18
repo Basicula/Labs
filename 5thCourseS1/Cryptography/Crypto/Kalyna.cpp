@@ -5,6 +5,8 @@
 
 namespace
   {
+  std::vector<uint8_t> g_temp_buffer;
+
   uint8_t mds_matrix[8][8] = {
     {0x01, 0x01, 0x05, 0x01, 0x08, 0x06, 0x07, 0x04},
     {0x04, 0x01, 0x01, 0x05, 0x01, 0x08, 0x06, 0x07},
@@ -189,11 +191,11 @@ namespace
     return ss.str();
     }
 
-  uint8_t mult_gf(uint8_t x, uint8_t y) 
+  uint8_t mult_gf(uint8_t x, uint8_t y)
     {
     uint8_t r = 0;
     uint8_t hbit = 0;
-    for (size_t i = 0; i < 8; ++i) 
+    for (size_t i = 0; i < 8; ++i)
       {
       if ((y & 0x1) == 1)
         r ^= x;
@@ -222,6 +224,7 @@ namespace
 Kalyna::Kalyna(BlockSize i_block_size, KeySize i_key_size)
   : m_block_size(i_block_size)
   , m_key_size(i_key_size)
+  , m_mult_table()
   {
   switch (m_block_size)
     {
@@ -272,6 +275,7 @@ Kalyna::Kalyna(BlockSize i_block_size, KeySize i_key_size)
   m_round_keys.resize(m_nr + 1);
   for (auto& key : m_round_keys)
     key.resize(m_nb);
+  _GenerateMultTable();
   }
 
 std::string Kalyna::EncryptString(const std::string& i_data) const
@@ -420,25 +424,24 @@ void Kalyna::_ShiftRows(std::vector<uint64_t>& io_state, bool i_inverted) const
   int shift = -1;
 
   uint8_t* state = reinterpret_cast<uint8_t*>(io_state.data());
-  uint8_t* temp = new uint8_t[m_nb * sizeof(uint64_t)];
+  g_temp_buffer.resize(m_nb * sizeof(uint64_t));
 
-  for (size_t row = 0; row < sizeof(uint64_t); ++row)
+  for (size_t bit = 0; bit < sizeof(uint64_t); ++bit)
     {
-    if (row % (sizeof(uint64_t) / m_nb) == 0)
+    if (bit % (sizeof(uint64_t) / m_nb) == 0)
       ++shift;
-    for (size_t col = 0; col < m_nb; ++col)
+    for (size_t word = 0; word < m_nb; ++word)
       if (i_inverted)
-        temp[row + sizeof(uint64_t) * col] = state[row + sizeof(uint64_t) * ((col + shift) % m_nb)];
+        g_temp_buffer[bit + sizeof(uint64_t) * word] = state[bit + sizeof(uint64_t) * ((word + shift) % m_nb)];
       else
-        temp[row + sizeof(uint64_t) * ((col + shift) % m_nb)] = state[row + sizeof(uint64_t) * col];
+        g_temp_buffer[bit + sizeof(uint64_t) * ((word + shift) % m_nb)] = state[bit + sizeof(uint64_t) * word];
     }
-  std::copy(temp, temp + m_nb * sizeof(uint64_t), state);
-  delete[] temp;
+  std::copy(g_temp_buffer.data(), g_temp_buffer.data() + m_nb * sizeof(uint64_t), state);
   }
 
 void Kalyna::_MixColumns(std::vector<uint64_t>& io_state, bool i_inverted) const
   {
-  uint8_t* state = reinterpret_cast<uint8_t*>(io_state.data());
+  auto state = reinterpret_cast<uint8_t*>(io_state.data());
   auto matrix = (i_inverted ? mds_inv_matrix : mds_matrix);
   for (size_t col = 0; col < m_nb; ++col)
     {
@@ -447,7 +450,11 @@ void Kalyna::_MixColumns(std::vector<uint64_t>& io_state, bool i_inverted) const
       {
       uint8_t product = 0;
       for (int b = sizeof(uint64_t) - 1; b >= 0; --b)
-        product ^= mult_gf(state[b + col * sizeof(uint64_t)], matrix[row][b]);
+        {
+        auto p = matrix[row][b];
+        auto bt = state[b + col * sizeof(uint64_t)];
+        product ^= m_mult_table[p][bt];
+        }
       result |= static_cast<uint64_t>(product) << (row * sizeof(uint64_t));
       }
     io_state[col] = result;
@@ -496,15 +503,12 @@ void Kalyna::_ShiftLeft(std::vector<uint64_t>& io_state)
 
 void Kalyna::_RotateLeft(std::vector<uint64_t>& io_state)
   {
-  size_t rotate_bytes = 2 * m_nb + 3;
-  size_t bytes_num = m_nb * sizeof(uint64_t);
+  const size_t rotate_bytes = 2 * m_nb + 3;
+  const size_t bytes_num = m_nb * sizeof(uint64_t);
 
   uint8_t* bytes = reinterpret_cast<uint8_t*>(io_state.data());
-  uint8_t* buffer = new uint8_t[rotate_bytes];
 
-  std::copy(bytes, bytes + rotate_bytes, buffer);
-  std::memmove(bytes, bytes + rotate_bytes, bytes_num - rotate_bytes);
-  std::copy(buffer, buffer + rotate_bytes, bytes + bytes_num - rotate_bytes);
+  std::rotate(bytes, bytes + rotate_bytes, bytes + bytes_num);
   }
 
 void Kalyna::_Rotate(std::vector<uint64_t>& io_state)
@@ -551,7 +555,8 @@ void Kalyna::_KeyExpansion()
     if (m_nr == round_idx)
       break;
 
-    if (m_nk != m_nb) {
+    if (m_nk != m_nb)
+      {
       round_idx += 2;
 
       _ShiftLeft(tmv);
@@ -573,8 +578,16 @@ void Kalyna::_KeyExpansion()
     _ShiftLeft(tmv);
     _Rotate(key);
     }
-  for (size_t i = 1; i < m_nr; i += 2) {
+  for (size_t i = 1; i < m_nr; i += 2)
+    {
     m_round_keys[i].assign(m_round_keys[i - 1].begin(), m_round_keys[i - 1].end());
     _RotateLeft(m_round_keys[i]);
     }
+  }
+
+void Kalyna::_GenerateMultTable()
+  {
+  for (auto i = 0u; i < 256; ++i)
+    for (auto byte = 0u; byte < 256; ++byte)
+      m_mult_table[i][byte] = mult_gf(static_cast<uint8_t>(byte), static_cast<uint8_t>(i));
   }

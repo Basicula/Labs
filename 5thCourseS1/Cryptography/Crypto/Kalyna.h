@@ -44,6 +44,8 @@ class Kalyna : public CryptoBase
     void _EncipherRound(std::vector<uint64_t>& io_state) const;
     void _DecipherRound(std::vector<uint64_t>& io_state) const;
 
+    void _GenerateMultTable();
+
     void _SubBytes(std::vector<uint64_t>& io_state, bool i_inverted = false) const;
     void _ShiftRows(std::vector<uint64_t>& io_state, bool i_inverted = false) const;
     void _MixColumns(std::vector<uint64_t>& io_state, bool i_inverted = false) const;
@@ -71,4 +73,5 @@ class Kalyna : public CryptoBase
     size_t m_nr;
 
     std::vector<std::vector<uint64_t>> m_round_keys;
+    uint8_t m_mult_table[256][256];
   };

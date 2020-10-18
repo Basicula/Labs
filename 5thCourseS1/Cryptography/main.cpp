@@ -13,13 +13,14 @@ std::pair<double, std::string> map_time(double i_nanosec)
   {
   const std::vector<std::pair<double, std::string>> units
     {
-    {3600e9,  "hours       "},
-    {60e9,    "minutes     "},
-    {1e9,     "seconds     "},
-    {1e6,     "milliseconds"},
-    {1e3,     "microseconds"},
+    {3600e9,  "h "}, // hours
+    {60e9,    "m "}, // minutes
+    {1e9,     "s "}, // seconds
+    {1e6,     "ms"}, // milliseconds
+    {1e3,     "us"}, // microseconds
+    {1,       "ns"}, // nanoseconds
     };
-  std::pair<double, std::string> result{ i_nanosec, "nanoseconds " };
+  std::pair<double, std::string> result{ i_nanosec, "ns" };
   for (const auto& unit : units)
     if (result.first > unit.first)
       {
@@ -73,6 +74,9 @@ void compare_benchmark()
 
   std::filesystem::path test_dir(TEST_FILES_DIR);
   std::ofstream results_stream(RESULTS_PATH);
+  std::cout << "Encipher         \tFile      \tEncrypted\tDecrypted" << std::endl;
+  results_stream << "Encipher         \tFile      \tEncrypted\tDecrypted" << std::endl;
+
   for (const auto& file : std::filesystem::directory_iterator(test_dir))
     {
     const auto original_file = file.path();
@@ -86,16 +90,18 @@ void compare_benchmark()
 
     for (const auto& encipher : enciphers)
       {
-      std::cout << "Encipher: " << encipher.first << " file: " << file_name_to_print;
-      results_stream << "Encipher: " << encipher.first << " file: " << file_name_to_print;
+      std::cout << encipher.first << "\t" << file_name_to_print << "\t";
+      results_stream << encipher.first << "\t" << file_name_to_print << "\t";
+
+      std::cout << std::fixed;
 
       auto time = func_time([&]() {encipher.second->Encrypt(file, encrypted_filename); });
-      std::cout << std::fixed << std::setprecision(4) << "\t encrypted in " << time.first << " " << time.second;
-      results_stream << std::fixed << std::setprecision(4) << "\t encrypted in " << time.first << " " << time.second;
+      std::cout << std::setprecision(4) << time.first << " " << time.second << "\t";
+      results_stream << std::setprecision(4) << time.first << " " << time.second << "\t";
 
       time = func_time([&]() {encipher.second->Decrypt(encrypted_filename, decrypted_filename); });
-      std::cout << std::fixed << std::setprecision(4) << "\t decrypted in " << time.first << " " << time.second << std::endl;
-      results_stream << std::fixed << std::setprecision(4) << "\t decrypted in " << time.first << " " << time.second << std::endl;
+      std::cout << std::setprecision(4) << time.first << " " << time.second << std::endl;
+      results_stream << std::setprecision(4) << time.first << " " << time.second << std::endl;
 
       std::filesystem::remove(encrypted_filename);
       std::filesystem::remove(decrypted_filename);
