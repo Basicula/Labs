@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from common import *
 
-class ShutingYard:
+class ShuntingYard:
     def __init__(self, expression):
         self.expression = expression
         self.prepare_string()
@@ -71,7 +71,7 @@ class ShutingYard:
                     if len(result_stack) == 0:
                         raise Exception("Too few operands for operation " + token)
                     args.append(result_stack.pop())
-                args.reverse()
+                    args.reverse()
                 
                 result_stack.append(operator['func'](*args))
             elif token in CONSTANTS:
@@ -137,15 +137,22 @@ class ShutingYard:
             print('{0:0.2f}'.format(x),'\t', '{0:0.2f}'.format(y))
     
 if __name__ == '__main__':
-    test = ShutingYard("1+2+3+4")
+    test = ShuntingYard("1+2+3+4")
     print(test(1))
-    test = ShutingYard("2 + 2 * 2")
+    test = ShuntingYard("2 + 2 * 2")
     print(test(12))
-    test = ShutingYard("2*sin(1/(exp(3*x)+1)-tg(x+PI/2))")
+    test = ShuntingYard("2*sin(1/(exp(3*x)+1)-tg(x+PI/2))")
     print(test(12))
-    test = ShutingYard("sin ( cos ( 3 ) / 3 * PI )")
+    test = ShuntingYard("sin ( cos ( 3 ) / 3 * PI )")
     print(test(1))
-    test = ShutingYard("pow(x,0.5)")
+    test = ShuntingYard("pow(x,0.5)")
     test.tabulate(0, 4)
     print(test(9))
+    
+    expression = ShuntingYard("2*sin(1/(exp(3*x)+1)-tg(x+PI/2))")
+    expression(0)
+    expression(2)
+    
+    
+    
     
