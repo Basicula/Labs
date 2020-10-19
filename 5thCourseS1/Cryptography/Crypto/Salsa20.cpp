@@ -20,7 +20,7 @@ namespace
 
 const uint8_t Salsa20::mg_key16_const[16] = { 'e','x','p','a','n','d',' ','1','6','-','b','y','t','e',' ','k' };
 const uint8_t Salsa20::mg_key32_const[16] = { 'e','x','p','a','n','d',' ','3','2','-','b','y','t','e',' ','k' };
-const size_t Salsa20::mg_num_rounds = 20;
+const size_t Salsa20::mg_num_rounds = 10;
 
 Salsa20::Salsa20(KeyLength i_key_length)
   : m_key_length(i_key_length)
