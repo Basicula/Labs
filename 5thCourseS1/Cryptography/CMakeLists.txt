@@ -53,8 +53,19 @@ add_library(
 )
 target_include_directories(Crypto PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Crypto")
 
+add_library(
+  HashFunc
+  
+  STATIC
+  
+  HashFunc/SHA256.h
+  HashFunc/SHA256.cpp
+)
+target_include_directories(Crypto PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/HashFunc")
+
 add_executable(Main main.cpp)
 target_link_libraries(Main PRIVATE Crypto)
+target_link_libraries(Main PRIVATE HashFunc)
 
 enable_testing()
 
@@ -65,8 +76,10 @@ add_executable(
   Tests/Kalyna_tests.cpp
   Tests/RC4_tests.cpp
   Tests/Salsa20_tests.cpp
+  Tests/SHA256_tests.cpp
 )
 target_link_libraries(Tests PRIVATE Crypto)
+target_link_libraries(Tests PRIVATE HashFunc)
 target_link_libraries(Tests PRIVATE gtest_main)
 add_test(
   NAME

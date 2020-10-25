@@ -3,6 +3,8 @@
 #include <RC4.h>
 #include <Salsa20.h>
 
+#include <SHA256.h>
+
 #include <iostream>
 #include <fstream>
 #include <functional>
@@ -111,6 +113,9 @@ void compare_benchmark()
 
 int main()
   {
-  compare_benchmark();
+  //compare_benchmark();
+  SHA256 sha256;
+  std::cout << sha256("kek") << std::endl;
+  std::cout << sha256("") << std::endl;
   return 0;
   }
