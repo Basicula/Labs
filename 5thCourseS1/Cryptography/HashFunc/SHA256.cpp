@@ -133,16 +133,7 @@ namespace
     }
   }
 
-SHA256::SHA256()
-  {
-  }
-
 std::string SHA256::operator()(std::string i_data) const
-  {
-  return Hash(i_data);
-  }
-
-std::string SHA256::Hash(std::string i_data) const
   {
   _Padding(i_data);
   uint32_t state[8];

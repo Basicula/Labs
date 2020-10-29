@@ -1,3 +1,40 @@
+# **Hash Functions**
+Implemented SHA256, Kupyna512 and Kupyna256 hash functions. Birthday attack and brute force algorithms for proof-of-work/finding partial collisions
+## **Average iterations for birthday attack to get partial collision with specific prefix length**
+| Prefix length | Kupyna256 | Kupyna512 | SHA256 |
+|---------------|-----------|-----------|--------|
+| 1             | 4         | 4         | 4      |
+| 2             | 20        | 18        | 18     |
+| 3             | 73        | 75        | 75     |
+| 4             | 334       | 309       | 307    |
+| 5             | 1342      | 1192      | 1295   |
+| 6             | 4795      | 5366      | 4904   |
+| 7             | 19353     | 20086     | 21201  |
+| 8             | 85105     | 89316     | 82990  |
+
+## **Samples for prefix length 8**
+```
+Kupyna256:
+        Text1                                   = "w61vgz86w9wdbeunpeikelve:46073"
+        Text2                                   = "w61vgz86w9wdbeunpeikelve:15385"
+        Hash1                                   = "eb63d31007b4995fdf9daa6c23a9a342c274d251388429e26efbe455a3521661"
+        Hash2                                   = "eb63d3104d8ab039e8a77403d506c558281c6e9a17fc9c752983e9f95aed4145"
+        Avarage tries to get partial collision  = "85105"
+Kupyna512:
+        Text1                                   = "55fx7a3eyzp9z6xo906v56586xn9qxuznury1lcjfrryqr2v92ve03aqxgr1a6a564pql664gw5x2heccoe9urx:91362"
+        Text2                                   = "55fx7a3eyzp9z6xo906v56586xn9qxuznury1lcjfrryqr2v92ve03aqxgr1a6a564pql664gw5x2heccoe9urx:35424"
+        Hash1                                   = "f206465acb3f3ad35f75b37271725b56e6c51b1011041384633212aad8d7c098716e2983c4bc9349a70aef41eb4bed54df03508f879a8cacbfb4bc6b9fa143a3"
+        Hash2                                   = "f206465ac33ddb3574a0844a905fc37406f6b3dc47f03a34535bb61d724e31458c8955aaceccb367ec95e69b88c95863e775fed743ff73b003bd81f565f7c276"
+        Avarage tries to get partial collision  = "89316"
+SHA256   :
+        Text1                                   = "8x7letkkm2hbt8yxlxcg7d8aeaq7xpi0dw3wps238d2zbmr6nbaw0d2u9ecn006fzt6meexw6v7jki2muc80iw577bok92jnuh8qbfcf6yvhentk327do4olp1r:120203"
+        Text2                                   = "8x7letkkm2hbt8yxlxcg7d8aeaq7xpi0dw3wps238d2zbmr6nbaw0d2u9ecn006fzt6meexw6v7jki2muc80iw577bok92jnuh8qbfcf6yvhentk327do4olp1r:84233"
+        Hash1                                   = "792234e443f410cefe0736db87ccca09ee6f323935f2824b49a5ad0f1d19c872"
+        Hash2                                   = "792234e4e689d1c561b2fb151a249040ec8218a02355e202fede948157bdc58d"
+        Avarage tries to get partial collision  = "82990"
+```
+
+#
 ## **All implemented enciphers comparison**
 | Encipher       | 1kb|1kb| 1024kb|1024kb| 100mb|100mb| 500mb|500mb| 1gb|1gb|
 |----------------|------------|-----------|-------------|-------------|-------------|-------------|-----------|-----------|-----------|-----------|
@@ -26,7 +63,8 @@
 | Salsa20_128    | 5.4184 ms  | 1.7593 ms | 13.4839 ms  | 14.3502 ms  | 782.8532 ms | 781.1428 ms | 3.9065 s  | 4.1111 s  | 8.7431 s  | 8.2860 s  |
 | Salsa20_256    | 5.5149 ms  | 1.1322 ms | 15.3037 ms  | 13.1515 ms  | 802.9705 ms | 778.6795 ms | 4.0720 s  | 4.0915 s  | 8.1933 s  | 8.0952 s  |
 
-# **LAB №2**
+#
+# **Stream enciphers**
 Added RC4 stream cipher.
 Added Salsa20 stream cipher with 128 and 256 key length modes.
 Added CBC, CFB, OFB and CTR stream cipher modes for AES cipher.
@@ -47,8 +85,8 @@ Added CBC, CFB, OFB and CTR stream cipher modes for AES cipher.
 | Salsa20_256   | 3.9793 ms | 1.0937 ms | 10.9296 ms | 12.0526 ms | 752.026 ms | 759.084 ms | 3.7404 s  | 3.9691 s  | 7.88292 s | 8.00517 s |
 
 
-# **LAB №1**
-## **AES and Kalyna enciphers**
+#
+# **AES and Kalyna enciphers**
 
 ### **Implementation details**
 All enciphers have similar and simple usage, file-to-file or string-to-string. First of all need to define some key as some string:

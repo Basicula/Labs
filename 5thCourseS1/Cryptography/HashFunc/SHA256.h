@@ -1,11 +1,8 @@
 #pragma once
-#include <string>
+#include "HashFuncBase.h"
 
-class SHA256
+class SHA256 : public HashfuncBase
   {
   public:
-    SHA256();
-
-    std::string operator()(std::string i_data) const;
-    std::string Hash(std::string i_data) const;
+    virtual std::string operator()(std::string i_data) const override;
   };

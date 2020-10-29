@@ -4,43 +4,58 @@
 #include <Salsa20.h>
 
 #include <SHA256.h>
+#include <Kupyna.h>
 
 #include <iostream>
 #include <fstream>
 #include <functional>
 #include <chrono>
 #include <map>
+#include <set>
 
-std::pair<double, std::string> map_time(double i_nanosec)
+namespace
   {
-  const std::vector<std::pair<double, std::string>> units
+  std::pair<double, std::string> map_time(double i_nanosec)
     {
-    {3600e9,  "h "}, // hours
-    {60e9,    "m "}, // minutes
-    {1e9,     "s "}, // seconds
-    {1e6,     "ms"}, // milliseconds
-    {1e3,     "us"}, // microseconds
-    {1,       "ns"}, // nanoseconds
-    };
-  std::pair<double, std::string> result{ i_nanosec, "ns" };
-  for (const auto& unit : units)
-    if (result.first > unit.first)
+    const std::vector<std::pair<double, std::string>> units
       {
-      result.first /= unit.first;
-      result.second = unit.second;
-      break;
-      }
-  return result;
+      {3600e9,  "h "}, // hours
+      {60e9,    "m "}, // minutes
+      {1e9,     "s "}, // seconds
+      {1e6,     "ms"}, // milliseconds
+      {1e3,     "us"}, // microseconds
+      {1,       "ns"}, // nanoseconds
+      };
+    std::pair<double, std::string> result{ i_nanosec, "ns" };
+    for (const auto& unit : units)
+      if (result.first > unit.first)
+        {
+        result.first /= unit.first;
+        result.second = unit.second;
+        break;
+        }
+    return result;
 
-  }
+    }
 
-std::pair<double, std::string> func_time(std::function<void()> i_func)
-  {
-  auto start_time = std::chrono::system_clock::now();
-  i_func();
-  auto end_time = std::chrono::system_clock::now();
-  auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-  return map_time(static_cast<double>(elapsed));
+  std::pair<double, std::string> func_time(std::function<void()> i_func)
+    {
+    auto start_time = std::chrono::system_clock::now();
+    i_func();
+    auto end_time = std::chrono::system_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+    return map_time(static_cast<double>(elapsed));
+    }
+
+  std::string random_string()
+    {
+    const size_t length = rand() % 128;
+    static const std::string symbols = "1234567890qwertyuiopasdfghjklzxcvbnm";
+    std::string res;
+    for (auto i = 0u; i < length; ++i)
+      res += symbols[rand() % symbols.size()];
+    return res;
+    }
   }
 
 void compare_benchmark()
@@ -111,11 +126,130 @@ void compare_benchmark()
     }
   }
 
+void hash_brute_force_attack()
+  {
+  std::map<std::string, std::unique_ptr<HashfuncBase>> hash_funcs;
+  hash_funcs.emplace("SHA256   ", std::make_unique<SHA256>());
+  hash_funcs.emplace("Kupyna256", std::make_unique<Kupyna>(Kupyna::HashSize::Kupyna256));
+  hash_funcs.emplace("Kupyna512", std::make_unique<Kupyna>(Kupyna::HashSize::Kupyna512));
+
+  struct CollisionResult
+    {
+    std::string text1;
+    std::string text2;
+    std::string hash;
+    };
+
+  const size_t max_prefix_len = 8;
+  std::vector<std::map<std::string, CollisionResult>> results(max_prefix_len);
+
+  size_t try_id = 0;
+  const std::string start_text1("text1"), start_text2("text2");
+  std::string text1, text2;
+  size_t prefix_len = 1;
+  for (auto& prefix_result : results)
+    {
+    while (prefix_result.size() < hash_funcs.size())
+      {
+      text1 = start_text1 + ":" + std::to_string(try_id);
+      text2 = start_text2 + ":" + std::to_string(try_id);
+      for (const auto& hash_func : hash_funcs)
+        {
+        const auto res1 = (*hash_func.second)(text1);
+        const auto res2 = (*hash_func.second)(text2);
+        if (res1.substr(0, prefix_len) == res2.substr(0, prefix_len))
+          {
+          std::cout << "Collision found for " << hash_func.first
+            << " with prefix length " << prefix_len
+            << " attempt " << try_id << std::endl;
+          prefix_result.emplace(hash_func.first, CollisionResult{ text1, text2, res1 });
+          }
+        }
+      ++try_id;
+      }
+    ++prefix_len;
+    }
+  prefix_len = 1;
+  for (const auto& prefix_result : results)
+    {
+    std::cout << "\nResults for prefix length " << prefix_len++ << std::endl;
+    for (const auto& hash_result : prefix_result)
+      std::cout << hash_result.first << ":\n"
+      << "\tText1 = \"" << hash_result.second.text1 << "\"\n"
+      << "\tText2 = \"" << hash_result.second.text2 << "\"\n"
+      << "\tHash  = \"" << hash_result.second.hash << "\"\n";
+    }
+  }
+
+void hash_birthday_attack()
+  {
+  std::map<std::string, std::unique_ptr<HashfuncBase>> hash_funcs;
+  hash_funcs.emplace("SHA256   ", std::make_unique<SHA256>());
+  hash_funcs.emplace("Kupyna256", std::make_unique<Kupyna>(Kupyna::HashSize::Kupyna256));
+  hash_funcs.emplace("Kupyna512", std::make_unique<Kupyna>(Kupyna::HashSize::Kupyna512));
+
+  struct CollisionResult
+    {
+    std::string text1;
+    std::string text2;
+    std::string hash1;
+    std::string hash2;
+    size_t avarage_tries;
+    };
+
+  const size_t samples = 100;
+  const size_t max_prefix_len = 8;
+  std::vector<std::map<std::string, CollisionResult>> results(max_prefix_len);
+
+  size_t prefix_len = 1;
+  for (auto& prefix_result : results)
+    {
+    for (const auto& hash_func : hash_funcs)
+      {
+      std::map<std::string, std::pair<std::string, std::string>> prefixes;
+      size_t sum_tries = 0;
+      for (auto sample_id = 0u; sample_id < samples; ++sample_id)
+        {
+        size_t try_id = 0;
+        const std::string start_text = random_string();
+        while (true)
+          {
+          const auto text = start_text + ":" + std::to_string(try_id);
+          const auto hash = (*hash_func.second)(text);
+          const auto prefix = hash.substr(0, prefix_len);
+          if (prefixes.find(prefix) != prefixes.end())
+            {
+            prefix_result.emplace(hash_func.first, CollisionResult{ text, prefixes[prefix].second, hash, prefixes[prefix].first, 0 });
+            sum_tries += try_id;
+            break;
+            }
+          prefixes.emplace(prefix, std::pair<std::string, std::string>{ hash, text });
+          ++try_id;
+          }
+        prefixes.clear();
+        }
+      prefix_result[hash_func.first].avarage_tries = sum_tries / samples;
+      }
+    std::cout << "Prefix length " << prefix_len << " processed" << std::endl;
+    ++prefix_len;
+    }
+  prefix_len = 1;
+  for (const auto& prefix_result : results)
+    {
+    std::cout << "\nResults for prefix length " << prefix_len++ << std::endl;
+    for (const auto& hash_result : prefix_result)
+      std::cout << hash_result.first << ":\n"
+      << "\tText1                                   = \"" << hash_result.second.text1 << "\"\n"
+      << "\tText2                                   = \"" << hash_result.second.text2 << "\"\n"
+      << "\tHash1                                   = \"" << hash_result.second.hash1 << "\"\n"
+      << "\tHash2                                   = \"" << hash_result.second.hash2 << "\"\n"
+      << "\tAvarage tries to get partial collision  = \"" << hash_result.second.avarage_tries << "\"\n";
+    }
+  }
+
 int main()
   {
   //compare_benchmark();
-  SHA256 sha256;
-  std::cout << sha256("kek") << std::endl;
-  std::cout << sha256("") << std::endl;
+  //hash_birthday_attack();
   return 0;
   }

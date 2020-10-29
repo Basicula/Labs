@@ -1,8 +1,7 @@
 #pragma once
+#include "HashFuncBase.h"
 
-#include <string>
-
-class Kupyna
+class Kupyna : public HashfuncBase
   {
   public:
     enum class HashSize
@@ -14,8 +13,7 @@ class Kupyna
   public:
     Kupyna(HashSize i_size = HashSize::Kupyna256);
 
-    std::string operator()(const std::string& i_data) const;
-    std::string Hash(std::string i_data) const;
+    virtual std::string operator()(std::string i_data) const override;
 
   private:
     void _Padding(std::string& io_data) const;

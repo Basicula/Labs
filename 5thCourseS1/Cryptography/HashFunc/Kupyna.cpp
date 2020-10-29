@@ -142,12 +142,7 @@ Kupyna::Kupyna(HashSize i_size)
   m_block_size = m_nb * m_rows;
   }
 
-std::string Kupyna::operator()(const std::string& i_data) const
-  {
-  return Hash(i_data);
-  }
-
-std::string Kupyna::Hash(std::string i_data) const
+std::string Kupyna::operator()(std::string i_data) const
   {
   uint8_t state[m_rows * 16];
   std::fill_n(state, m_block_size, static_cast<uint8_t>(0));

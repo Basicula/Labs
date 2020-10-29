@@ -58,8 +58,13 @@ add_library(
   
   STATIC
   
+  HashFunc/HashFuncBase.h
+  
   HashFunc/SHA256.h
   HashFunc/SHA256.cpp
+  
+  HashFunc/Kupyna.h
+  HashFunc/Kupyna.cpp
 )
 target_include_directories(Crypto PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/HashFunc")
 
@@ -77,6 +82,7 @@ add_executable(
   Tests/RC4_tests.cpp
   Tests/Salsa20_tests.cpp
   Tests/SHA256_tests.cpp
+  Tests/Kupyna_tests.cpp
 )
 target_link_libraries(Tests PRIVATE Crypto)
 target_link_libraries(Tests PRIVATE HashFunc)
