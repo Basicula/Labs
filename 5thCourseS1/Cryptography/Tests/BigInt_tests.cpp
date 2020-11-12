@@ -52,36 +52,74 @@ TEST(BigIntBoolOperations, bool_operations)
   EXPECT_TRUE(a == b);
   }
 
-TEST(BigIntAdding, add_sub_cases)
+TEST(BigIntAdding, common_cases)
   {
-  bigint a(123), b(321);
-  auto c = a + b;
+  bigint a, b, c;
+
+  a = 321;
+  b = 123;
+  c = a + b;
   EXPECT_EQ("444", c.str());
+  c = a;
+  c += b;
+  EXPECT_EQ("444", c.str());
+
+  a = -321;
+  b = -123;
+  c = a + b;
+  EXPECT_EQ("-444", c.str());
+  c = a;
+  c += b;
+  EXPECT_EQ("-444", c.str());
 
   a = -321;
   b = 123;
   c = a + b;
+  EXPECT_EQ("-198", c.str());
+  c = b + a;
+  EXPECT_EQ("-198", c.str());
+  c = a;
+  c += b;
+  EXPECT_EQ("-198", c.str());
+  c = b;
+  c += a;
+  EXPECT_EQ("-198", c.str());
+
+  a = 999;
+  b = 11;
+  c = a + b;
+  EXPECT_EQ("1010", c.str());
+  }
+
+TEST(BigIntSubtraction, common_cases)
+  {
+  bigint a, b, c;
+
+  a = 321;
+  b = 123;
+  c = a - b;
+  EXPECT_EQ("198", c.str());
+  c = a;
+  c -= b;
+  EXPECT_EQ("198", c.str());
+  c = b - a;
+  EXPECT_EQ("-198", c.str());
+  c = b;
+  c -= a;
   EXPECT_EQ("-198", c.str());
 
   a = -321;
   b = 123;
   c = a - b;
   EXPECT_EQ("-444", c.str());
-
-  a = 321;
-  b = -123;
-  c = a + b;
-  EXPECT_EQ("198", c.str());
-
-  a = 321;
-  b = -123;
-  c = a - b;
+  c = a;
+  c -= b;
+  EXPECT_EQ("-444", c.str());
+  c = b - a;
   EXPECT_EQ("444", c.str());
-
-  a = 999;
-  b = 11;
-  c = a + b;
-  EXPECT_EQ("1010", c.str());
+  c = b;
+  c -= a;
+  EXPECT_EQ("444", c.str());
 
   a = 10000;
   b = 1;
@@ -185,15 +223,32 @@ TEST(BigIntDivide, divide_cases)
   c = 2 * 3 * 5 * 7 * 13 * 17;
   EXPECT_EQ(c, a / b);
 
-  a = "12345667909685634";
-  b = "9754365";
+  a = "246913579975308643";
+  b = "123456789987654321";
   c = a / b;
-  EXPECT_EQ("1265655725", c.str());
+  EXPECT_EQ("2", c.str());
   c = a % b;
-  EXPECT_EQ("3696009", c.str());
+  EXPECT_EQ("1", c.str());
+  EXPECT_EQ(a, b * (a / b) + a % b);
+
+  a = "1524157887334247844875781101930955772112635270";
+  b = "12345678900987654321";
+  c = a / b;
+  EXPECT_EQ("123456789987654321123456789", c.str());
+  c = a % b;
+  EXPECT_EQ("1", c.str());
+  EXPECT_EQ(a, b * (a / b) + a % b);
 
   a = "123";
   b = "1";
   c = a % b;
   EXPECT_EQ("0", c.str());
+
+  a = 23;
+  b = 2;
+  EXPECT_TRUE(a % b);
+
+  a = 22;
+  b = 2;
+  EXPECT_FALSE(a % b);
   }

@@ -68,9 +68,29 @@ add_library(
 )
 target_include_directories(Crypto PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/HashFunc")
 
+add_library(
+  Cryptosystems
+  
+  STATIC
+  
+  Cryptosystems/BigInt.h
+  Cryptosystems/BigInt.cpp
+  
+  Cryptosystems/ModuloOperations.h
+  Cryptosystems/ModuloOperations.cpp
+  
+  Cryptosystems/RSA.h
+  Cryptosystems/RSA.cpp
+  
+  Cryptosystems/PrimeChecker.h
+  Cryptosystems/PrimeChecker.cpp
+)
+target_include_directories(Crypto PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Cryptosystems")
+
 add_executable(Main main.cpp)
 target_link_libraries(Main PRIVATE Crypto)
 target_link_libraries(Main PRIVATE HashFunc)
+target_link_libraries(Main PRIVATE Cryptosystems)
 
 enable_testing()
 
@@ -78,6 +98,7 @@ add_executable(
   Tests
   
   Tests/AES_tests.cpp
+  Tests/BigInt_tests.cpp
   Tests/Kalyna_tests.cpp
   Tests/RC4_tests.cpp
   Tests/Salsa20_tests.cpp
@@ -86,6 +107,7 @@ add_executable(
 )
 target_link_libraries(Tests PRIVATE Crypto)
 target_link_libraries(Tests PRIVATE HashFunc)
+target_link_libraries(Tests PRIVATE Cryptosystems)
 target_link_libraries(Tests PRIVATE gtest_main)
 add_test(
   NAME

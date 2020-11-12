@@ -36,7 +36,13 @@ bigint RSA::Encrypt(const bigint& i_message) const
 
 bigint RSA::Decrypt(const bigint& i_message) const
   {
-  return ModuloOperations::pow(i_message, m_d, m_n);
+  const auto dq = m_d % (m_q - 1);
+  const auto dp = m_d % (m_p - 1);
+  const auto inv_q = ModuloOperations::inverse(m_q, m_p);
+  const auto mq = ModuloOperations::pow(i_message, dq, m_q);
+  const auto mp = ModuloOperations::pow(i_message, dp, m_p);
+  const auto h = (inv_q * (mp + ((mp < mq) ? m_p * (m_q / m_p) : 0) - mq)) % m_p;
+  return (mq + h * m_q + m_n) % m_n;
   }
 
 void RSA::_PrepareKeys()
@@ -45,9 +51,9 @@ void RSA::_PrepareKeys()
   m_q = get_prime_number(m_prime_bit_size);
   m_n = m_p * m_q;
   m_ctf = (m_p - 1) * (m_q - 1) / ModuloOperations::gcd(m_p - 1, m_q - 1);
-  m_e = bigint::random(3, m_ctf);
+  m_e = bigint::random(3, m_ctf); // to generate between [3, ctf] <=> [3, λ(n)]
   while (ModuloOperations::gcd(m_e, m_ctf) != 1)
-    ++m_e;//m_e = bigint::random(3, m_ctf); // to generate between [3, ctf] <=> [3, λ(n)]
+    ++m_e;
   m_d = ModuloOperations::inverse(m_e, m_ctf);
   }
 

@@ -6,6 +6,10 @@
 #include <SHA256.h>
 #include <Kupyna.h>
 
+#include <BigInt.h>
+#include <ModuloOperations.h>
+#include <RSA.h>
+
 #include <iostream>
 #include <fstream>
 #include <functional>
@@ -144,25 +148,26 @@ void hash_brute_force_attack()
   std::vector<std::map<std::string, CollisionResult>> results(max_prefix_len);
 
   size_t try_id = 0;
-  const std::string start_text1("text1"), start_text2("text2");
-  std::string text1, text2;
+  const std::string start_text1("text1");
+  std::string text1;
   size_t prefix_len = 1;
   for (auto& prefix_result : results)
     {
+    std::string prefix = "";
+    for (auto i = 0; i < prefix_len; ++i)
+      prefix += "0";
     while (prefix_result.size() < hash_funcs.size())
       {
       text1 = start_text1 + ":" + std::to_string(try_id);
-      text2 = start_text2 + ":" + std::to_string(try_id);
       for (const auto& hash_func : hash_funcs)
         {
         const auto res1 = (*hash_func.second)(text1);
-        const auto res2 = (*hash_func.second)(text2);
-        if (res1.substr(0, prefix_len) == res2.substr(0, prefix_len))
+        if (res1.substr(0, prefix_len) == prefix)
           {
           std::cout << "Collision found for " << hash_func.first
             << " with prefix length " << prefix_len
             << " attempt " << try_id << std::endl;
-          prefix_result.emplace(hash_func.first, CollisionResult{ text1, text2, res1 });
+          prefix_result.emplace(hash_func.first, CollisionResult{ text1, "", res1 });
           }
         }
       ++try_id;
@@ -247,9 +252,34 @@ void hash_birthday_attack()
     }
   }
 
+void rsa_prime_bit_size_test()
+  {
+  for (auto bit_size = 8; bit_size <= 1024; bit_size *= 2)
+    {
+    std::cout << "\nUsing prime bit size: " << bit_size << std::endl;
+    const auto message = bigint::random(ModuloOperations::pow(2, bit_size - 1), ModuloOperations::pow(2, bit_size));
+    std::cout << "Message to process: " << message << std::endl;
+    RSA* rsa;
+    auto init_time = func_time([&]() {rsa = new RSA(bit_size); });
+    std::cout << *rsa << std::endl;
+    std::cout << "RSA initialized in: " << init_time.first << " " << init_time.second << std::endl;
+    bigint encrypted_message;
+    auto encrypt_time = func_time([&]() {encrypted_message = rsa->Encrypt(message); });
+    std::cout << "Encrypted " << encrypted_message << "\nin: " << encrypt_time.first << " " << encrypt_time.second << std::endl;
+    bigint decrypted_message;
+    auto decrypt_time = func_time([&]() {decrypted_message = rsa->Decrypt(encrypted_message); });
+    std::cout << "Decrypted " << decrypted_message << "\nin: " << decrypt_time.first << " " << decrypt_time.second << std::endl;
+    std::cout << ((message == decrypted_message) ? "Decrypted message match the original" : "Wrong decrypted message") << std::endl;
+    delete rsa;
+    }
+  }
+
 int main()
   {
+  srand(static_cast<uint32_t>(time(nullptr)));
   //compare_benchmark();
   //hash_birthday_attack();
+  //hash_brute_force_attack();
+  rsa_prime_bit_size_test();
   return 0;
   }
